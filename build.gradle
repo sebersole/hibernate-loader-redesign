@@ -1,0 +1,72 @@
+apply plugin: 'java'
+apply plugin: 'maven' // for install task as well as deploy dependencies
+apply plugin: 'idea'
+apply plugin: 'eclipse'
+
+group = 'org.hibernate.poc'
+version = '1.0.0-SNAPSHOT'
+
+defaultTasks 'build'
+
+buildscript {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+        mavenRepo name: 'jboss-nexus', url: "https://repository.jboss.org/nexus/content/groups/public/"
+        mavenRepo name: "jboss-snapshots", url: "http://snapshots.jboss.org/maven2/"
+    }
+    dependencies {
+        classpath 'org.hibernate.build.gradle:gradle-upload-auth-plugin:1.1.1'
+    }
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    mavenRepo name: 'jboss-nexus', url: "https://repository.jboss.org/nexus/content/groups/public/"
+    mavenRepo name: "jboss-snapshots", url: "http://snapshots.jboss.org/maven2/"
+}
+
+configurations {
+    deployerJars {
+        description = 'Jars needed for doing deployment to JBoss Nexus repo'
+    }
+}
+
+dependencies {
+    compile 'org.hibernate:hibernate-core:4.1.4-Final'
+}
+
+
+idea {
+    project {
+        jdkName = "1.6"
+	languageLevel "1.6"
+        ipr {
+            withXml { provider ->
+                provider.node.component.find { it.@name == 'VcsDirectoryMappings' }.mapping.@vcs = 'Git'
+                def maxHeapSizeConfig =  provider.node.component.find { it.@name == 'JavacSettings' }
+            }
+            beforeMerged { project ->
+                project.modulePaths.clear()
+            }
+        }
+    }
+    module {
+    }
+}
+
+
+// Maven stuff ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//    would be fantabulous if the maven plugin handled all this...
+assemble.doLast( { install } )
+uploadArchives.dependsOn install
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+task wrapper(type: Wrapper) {
+	gradleVersion = '1.0-milestone-8'
+}
