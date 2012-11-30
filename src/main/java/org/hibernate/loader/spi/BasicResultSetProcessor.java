@@ -32,7 +32,6 @@ import java.util.List;
 import org.jboss.logging.Logger;
 
 import org.hibernate.HibernateException;
-import org.hibernate.LockMode;
 import org.hibernate.engine.internal.TwoPhaseLoad;
 import org.hibernate.engine.spi.EntityKey;
 import org.hibernate.engine.spi.PersistenceContext;
@@ -45,9 +44,13 @@ import org.hibernate.event.spi.PostLoadEvent;
 import org.hibernate.event.spi.PreLoadEvent;
 import org.hibernate.internal.util.StringHelper;
 import org.hibernate.loader.CollectionAliases;
-import org.hibernate.loader.EntityAliases;
+import org.hibernate.loader.plan.spi.CollectionReturn;
+import org.hibernate.loader.plan.spi.EntityReturn;
+import org.hibernate.loader.plan.spi.FetchedEntityReturn;
+import org.hibernate.loader.plan.spi.LoadPlan;
+import org.hibernate.loader.plan.spi.ReturnVisitationStrategyAdapter;
+import org.hibernate.loader.plan.spi.ReturnVisitor;
 import org.hibernate.persister.collection.CollectionPersister;
-import org.hibernate.persister.entity.Loadable;
 import org.hibernate.pretty.MessageHelper;
 import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.transform.ResultTransformer;
@@ -57,7 +60,7 @@ import org.hibernate.type.Type;
 /**
 *
 * NOTE : most of this logic taken from {@link org.hibernate.loader.Loader#doQuery}, but only the portion about actually
-* processing the ResultSet.  Also, the logic is changed up a bit to use the notion of {@link Return} instead of
+* processing the ResultSet.  Also, the logic is changed up a bit to use the notion of {@link org.hibernate.loader.plan.spi.Return} instead of
 * directly relying on the old Loader contract; that should let this be used in many more situations without hackery.
 *
 * @author Steve Ebersole

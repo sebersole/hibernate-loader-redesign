@@ -21,27 +21,38 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.loader.spi;
+package org.hibernate.loader.plan.spi;
 
-import org.hibernate.LockMode;
+import org.hibernate.loader.CollectionAliases;
+import org.hibernate.loader.EntityAliases;
+import org.hibernate.persister.collection.CollectionPersister;
 
 /**
- * Represents some non-scalar (entity/collection) return within the query result.
+ * Common contract for collection returns whether root or fetched.
  *
  * @author Steve Ebersole
  */
-public interface NonScalarReturn {
+public interface CollectionReturn extends FetchReturnOwner {
 	/**
-	 * Retrieve the alias associated with the persister (entity/collection).
+	 * Retrieves the CollectionPersister describing the collection associated with this Return.
 	 *
-	 * @return The alias
+	 * @return The CollectionPersister.
 	 */
-	public String getAlias();
+	public CollectionPersister getCollectionPersister();
 
 	/**
-	 * Retrieve the lock mode associated with this return.
+	 * Returns the description of the aliases in the JDBC ResultSet that identify values "belonging" to the
+	 * this collection.
 	 *
-	 * @return The lock mode.
+	 * @return The ResultSet alias descriptor for the collection
 	 */
-	public LockMode getLockMode();
+	public CollectionAliases getCollectionAliases();
+
+	/**
+	 * If the elements of this collection are entities, this methods returns the JDBC ResultSet alias descriptions
+	 * for that entity; {@code null} indicates a non-entity collection.
+	 *
+	 * @return The ResultSet alias descriptor for the collection's entity element, or {@code null}
+	 */
+	public EntityAliases getElementEntityAliases();
 }

@@ -26,10 +26,17 @@ package org.hibernate.loader.spi;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.LockMode;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.persister.collection.CollectionPersister;
-import org.hibernate.persister.entity.EntityPersister;
+import org.hibernate.loader.plan.spi.CollectionReturn;
+import org.hibernate.loader.plan.spi.EntityReturn;
+import org.hibernate.loader.plan.spi.FetchedCollectionReturn;
+import org.hibernate.loader.plan.spi.FetchedEntityReturn;
+import org.hibernate.loader.plan.spi.LoadPlan;
+import org.hibernate.loader.plan.spi.ReturnVisitationStrategyAdapter;
+import org.hibernate.loader.plan.spi.ReturnVisitor;
+import org.hibernate.loader.plan.spi.RootCollectionReturn;
+import org.hibernate.loader.plan.spi.RootEntityReturn;
+import org.hibernate.loader.plan.spi.RootReturn;
 
 /**
  * @author Steve Ebersole

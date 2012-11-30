@@ -21,38 +21,18 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.loader.spi;
-
-import org.hibernate.loader.EntityAliases;
-import org.hibernate.persister.entity.EntityPersister;
+package org.hibernate.loader.plan.spi;
 
 /**
- * Common contract for entity returns whether root or fetched.
+ * Root returns are return values that describe a root value in the result.  This includes scalar results
+ * as well collection and entity returns that are not fetched.
+ *
+ * The result of a result set processor is ultimately a {@code List<Object[]>}.  Each element in the
+ * {@code Object[]} is represented by a Return.  However, not all Returns require an index in the
+ * {@code Object[]} (mainly this comes down to join fetches).  This interfaces marks Return objects that
+ * need an index in the {@code Object[]}
  *
  * @author Steve Ebersole
  */
-public interface EntityReturn extends FetchReturnOwner {
-	/**
-	 * Retrieves the EntityPersister describing the entity associated with this Return.
-	 *
-	 * @return The EntityPersister.
-	 */
-	public EntityPersister getEntityPersister();
-
-	/**
-	 * Returns the description of the aliases in the JDBC ResultSet that identify values "belonging" to the this entity.
-	 *
-	 * @return The ResultSet alias descriptor.
-	 */
-	public EntityAliases getEntityAliases();
-
-	/**
-	 * Obtain the SQL table alias associated with this entity.
-	 *
-	 * TODO : eventually this needs to not be a String, but a representation like I did for the Antlr3 branch
-	 * 		(AliasRoot, I think it was called)
-	 *
-	 * @return The SQL table alias for this entity
-	 */
-	public String getSqlTableAlias();
+public interface RootReturn extends Return {
 }

@@ -34,7 +34,7 @@ configurations {
 }
 
 dependencies {
-    compile 'org.hibernate:hibernate-core:4.1.4-Final'
+    compile 'org.hibernate:hibernate-core:4.1.8.Final'
 }
 
 

@@ -21,23 +21,12 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.loader.spi;
-
-import org.hibernate.engine.spi.EntityKey;
+package org.hibernate.loader.plan.spi;
 
 /**
- * Represents a plan of how to load results from a ResultSet.
- *
- * NOTE : alot of this simply tries to bridge to how {@link org.hibernate.loader.Loader} expects this information
- * to be available (aka, "parallel arrays").  The plan is to change the way that this information is expected/consumed
- * based on this contract.
+ * Represents a return value in the query results.  Not the same as a result (column) in the JDBC ResultSet!
  *
  * @author Steve Ebersole
  */
-public interface LoadPlan {
-	public RootReturn[] getRootReturns();
-
-	public EntityReturn[] collectEntityReturns();
-
-	public CollectionReturn[] collectCollectionReturns();
+public interface Return {
 }

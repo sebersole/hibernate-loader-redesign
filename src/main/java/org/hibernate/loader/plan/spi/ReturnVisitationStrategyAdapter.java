@@ -21,18 +21,52 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.loader.spi;
+package org.hibernate.loader.plan.spi;
 
 /**
- * Root returns are return values that describe a root value in the result.  This includes scalar results
- * as well collection and entity returns that are not fetched.
- *
- * The result of a result set processor is ultimately a {@code List<Object[]>}.  Each element in the
- * {@code Object[]} is represented by a Return.  However, not all Returns require an index in the
- * {@code Object[]} (mainly this comes down to join fetches).  This interfaces marks Return objects that
- * need an index in the {@code Object[]}
+ * An adapter implementation of the ReturnVisitationStrategy strategy that implements no-op versions
+ * of the contract methods.
  *
  * @author Steve Ebersole
  */
-public interface RootReturn extends Return {
+public class ReturnVisitationStrategyAdapter implements ReturnVisitationStrategy {
+	@Override
+	public void prepare() {
+	}
+
+	@Override
+	public void startingRootReturn(RootReturn rootReturn) {
+	}
+
+	@Override
+	public void finishingRootReturn(RootReturn rootReturn) {
+	}
+
+	@Override
+	public void startingFetches(FetchReturnOwner fetchOwner) {
+	}
+
+	@Override
+	public void finishingFetches(FetchReturnOwner fetchOwner) {
+	}
+
+	@Override
+	public void handleScalarReturn(ScalarReturn scalarReturn) {
+	}
+
+	@Override
+	public void handleRootEntityReturn(RootEntityReturn rootEntityReturn) {
+	}
+
+	@Override
+	public void handleRootCollectionReturn(RootCollectionReturn rootCollectionReturn) {
+	}
+
+	@Override
+	public void handleFetchedEntityReturn(FetchedEntityReturn fetchedEntityReturn) {
+	}
+
+	@Override
+	public void handleFetchedCollectionReturn(FetchedCollectionReturn fetchedCollectionReturn) {
+	}
 }

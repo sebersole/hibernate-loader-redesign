@@ -21,52 +21,12 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.loader.spi;
+package org.hibernate.loader.plan.spi2;
 
 /**
- * An adapter implementation of the ReturnVisitationStrategy strategy that implements no-op versions
- * of the contract methods.
+ * Represents a return value in the query results.  Not the same as a result (column) in the JDBC ResultSet!
  *
  * @author Steve Ebersole
  */
-public class ReturnVisitationStrategyAdapter implements ReturnVisitationStrategy {
-	@Override
-	public void prepare() {
-	}
-
-	@Override
-	public void startingRootReturn(RootReturn rootReturn) {
-	}
-
-	@Override
-	public void finishingRootReturn(RootReturn rootReturn) {
-	}
-
-	@Override
-	public void startingFetches(FetchReturnOwner fetchOwner) {
-	}
-
-	@Override
-	public void finishingFetches(FetchReturnOwner fetchOwner) {
-	}
-
-	@Override
-	public void handleScalarReturn(ScalarReturn scalarReturn) {
-	}
-
-	@Override
-	public void handleRootEntityReturn(RootEntityReturn rootEntityReturn) {
-	}
-
-	@Override
-	public void handleRootCollectionReturn(RootCollectionReturn rootCollectionReturn) {
-	}
-
-	@Override
-	public void handleFetchedEntityReturn(FetchedEntityReturn fetchedEntityReturn) {
-	}
-
-	@Override
-	public void handleFetchedCollectionReturn(FetchedCollectionReturn fetchedCollectionReturn) {
-	}
+public interface Return {
 }

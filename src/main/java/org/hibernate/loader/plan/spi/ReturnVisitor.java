@@ -21,7 +21,7 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.loader.spi;
+package org.hibernate.loader.plan.spi;
 
 /**
  * Visitor for processing {@link Return} objects.

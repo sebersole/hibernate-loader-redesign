@@ -21,21 +21,34 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.loader.spi;
+package org.hibernate.loader.plan.spi2;
 
-import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.persister.entity.EntityPersister;
 
 /**
+ * Contract for owners of fetches.  Any non-scalar return could be a fetch owner.
+ *
  * @author Steve Ebersole
  */
-public class AbstractReturn {
-	private final SessionFactoryImplementor sessionFactory;
+public interface FetchOwner {
+	/**
+	 * Convenient constant for returning no fetches from {@link #getFetches()}
+	 */
+	public static final Fetch[] NO_FETCHES = new Fetch[0];
 
-	public AbstractReturn(SessionFactoryImplementor sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
+	// todo : Iterable?
 
-	protected SessionFactoryImplementor sessionFactory() {
-		return sessionFactory;
-	}
+	/**
+	 * Retrieve the fetches owned by this return.
+	 *
+	 * @return The owned fetches.
+	 */
+	public Fetch[] getFetches();
+
+	/**
+	 * Retrieve the EntityPersister that is the base for any property references in the fetches it owns.
+	 *
+	 * @return The EntityPersister, for property name resolution.
+	 */
+	public EntityPersister retrieveFetchSourcePersister();
 }

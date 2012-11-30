@@ -21,28 +21,28 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.loader.spi;
+package org.hibernate.loader.plan.spi2;
 
 import org.hibernate.LockMode;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.loader.CollectionAliases;
 import org.hibernate.loader.EntityAliases;
+import org.hibernate.loader.plan.spi.*;
+import org.hibernate.loader.plan.spi.AbstractFetchOwner;
 import org.hibernate.persister.collection.CollectionPersister;
 import org.hibernate.persister.collection.QueryableCollection;
 import org.hibernate.persister.entity.EntityPersister;
 
 /**
- * Specifically a fetch return that refers to a collection association.
- *
  * @author Steve Ebersole
  */
-public class FetchedCollectionReturn extends AbstractFetchReturn implements CollectionReturn {
+public class CollectionFetch extends AbstractFetchReturn implements CollectionReference {
 	private final CollectionAliases collectionAliases;
 	private final EntityAliases elementEntityAliases;
 
 	private final CollectionPersister persister;
 
-	public FetchedCollectionReturn(
+	public CollectionFetch(
 			SessionFactoryImplementor sessionFactory,
 			String alias,
 			LockMode lockMode,
@@ -75,6 +75,6 @@ public class FetchedCollectionReturn extends AbstractFetchReturn implements Coll
 
 	@Override
 	public EntityPersister retrieveFetchSourcePersister() {
-		return ( (QueryableCollection) persister ).getElementPersister();
+		return ( (QueryableCollection) getCollectionPersister() ).getElementPersister();
 	}
 }

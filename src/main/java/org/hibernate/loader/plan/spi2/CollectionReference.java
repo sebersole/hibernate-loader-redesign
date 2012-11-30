@@ -21,18 +21,33 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.loader.spi;
+package org.hibernate.loader.plan.spi2;
 
+import org.hibernate.LockMode;
 import org.hibernate.loader.CollectionAliases;
 import org.hibernate.loader.EntityAliases;
 import org.hibernate.persister.collection.CollectionPersister;
 
 /**
- * Common contract for collection returns whether root or fetched.
+ * Represents a reference to an owned collection either as a return or as a fetch
  *
  * @author Steve Ebersole
  */
-public interface CollectionReturn extends FetchReturnOwner {
+public interface CollectionReference {
+	/**
+	 * Retrieve the alias associated with the persister (entity/collection).
+	 *
+	 * @return The alias
+	 */
+	public String getAlias();
+
+	/**
+	 * Retrieve the lock mode associated with this return.
+	 *
+	 * @return The lock mode.
+	 */
+	public LockMode getLockMode();
+
 	/**
 	 * Retrieves the CollectionPersister describing the collection associated with this Return.
 	 *

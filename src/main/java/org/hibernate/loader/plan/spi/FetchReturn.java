@@ -21,38 +21,25 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.loader.spi;
-
-import org.hibernate.LockMode;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
+package org.hibernate.loader.plan.spi;
 
 /**
+ * Contract for entities/collections that are being fetched.
+ *
  * @author Steve Ebersole
  */
-public abstract class AbstractFetchReturn extends AbstractFetchOwner implements FetchReturn {
-	private final FetchReturnOwner owner;
-	private final String ownerProperty;
+public interface FetchReturn extends Return, FetchReturnOwner {
+	/**
+	 * Obtain the owner of this fetch.
+	 *
+	 * @return The fetch owner.
+	 */
+	public FetchReturnOwner getOwner();
 
-	public AbstractFetchReturn(
-			SessionFactoryImplementor factory,
-			String alias,
-			LockMode lockMode,
-			AbstractFetchOwner owner,
-			String ownerProperty) {
-		super( factory, alias, lockMode );
-		this.owner = owner;
-		this.ownerProperty = ownerProperty;
-
-		owner.addFetch( this );
-	}
-
-	@Override
-	public FetchReturnOwner getOwner() {
-		return owner;
-	}
-
-	@Override
-	public String getOwnerPropertyName() {
-		return ownerProperty;
-	}
+	/**
+	 * Obtain the name of the property, relative to the owner, being fetched.
+	 *
+	 * @return The fetched property name.
+	 */
+	public String getOwnerPropertyName();
 }
