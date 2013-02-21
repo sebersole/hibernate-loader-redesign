@@ -23,53 +23,32 @@
  */
 package org.hibernate.loader.plan.spi;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.hibernate.HibernateException;
-import org.hibernate.LockMode;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.persister.entity.EntityPersister;
 
 /**
+ * Contract for owners of fetches.  Any non-scalar return could be a fetch owner.
+ *
  * @author Steve Ebersole
  */
-public abstract class AbstractFetchOwner extends AbstractPlanNode implements FetchOwner {
-	private final String alias;
-	private final LockMode lockMode;
+public interface FetchOwner {
+	/**
+	 * Convenient constant for returning no fetches from {@link #getFetches()}
+	 */
+	public static final Fetch[] NO_FETCHES = new Fetch[0];
 
-	private List<Fetch> fetches;
+	// todo : Iterable?
 
-	public AbstractFetchOwner(SessionFactoryImplementor factory, String alias, LockMode lockMode) {
-		super( factory );
-		this.alias = alias;
-		if ( alias == null ) {
-			throw new HibernateException( "alias must be specified" );
-		}
-		this.lockMode = lockMode;
-	}
+	/**
+	 * Retrieve the fetches owned by this return.
+	 *
+	 * @return The owned fetches.
+	 */
+	public Fetch[] getFetches();
 
-	public String getAlias() {
-		return alias;
-	}
-
-	public LockMode getLockMode() {
-		return lockMode;
-	}
-
-	void addFetch(Fetch fetch) {
-		if ( fetch.getOwner() != this ) {
-			throw new IllegalArgumentException( "Fetch and owner did not match" );
-		}
-
-		if ( fetches == null ) {
-			fetches = new ArrayList<Fetch>();
-		}
-
-		fetches.add( fetch );
-	}
-
-	@Override
-	public Fetch[] getFetches() {
-		return fetches == null ? NO_FETCHES : fetches.toArray( new Fetch[ fetches.size() ] );
-	}
+	/**
+	 * Retrieve the EntityPersister that is the base for any property references in the fetches it owns.
+	 *
+	 * @return The EntityPersister, for property name resolution.
+	 */
+	public EntityPersister retrieveFetchSourcePersister();
 }

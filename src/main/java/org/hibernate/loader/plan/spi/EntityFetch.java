@@ -27,38 +27,32 @@ import org.hibernate.LockMode;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.loader.EntityAliases;
 import org.hibernate.persister.entity.EntityPersister;
+import org.hibernate.type.EntityType;
 
 /**
  * @author Steve Ebersole
  */
-public class EntityReturn extends AbstractFetchOwner implements Return, FetchOwner, EntityReference {
-	private final EntityAliases entityAliases;
+public class EntityFetch extends AbstractFetch implements EntityReference {
 	private final String sqlTableAlias;
+	private final EntityAliases entityAliases;
 
 	private final EntityPersister persister;
 
-	public EntityReturn(
+	public EntityFetch(
 			SessionFactoryImplementor sessionFactory,
 			String alias,
 			LockMode lockMode,
-			String entityName,
+			AbstractFetchOwner owner,
+			String ownerProperty,
+			Style style,
 			String sqlTableAlias,
 			EntityAliases entityAliases) {
-		super( sessionFactory, alias, lockMode );
-		this.entityAliases = entityAliases;
+		super( sessionFactory, alias, lockMode, owner, ownerProperty, style );
 		this.sqlTableAlias = sqlTableAlias;
+		this.entityAliases = entityAliases;
 
-		this.persister = sessionFactory.getEntityPersister( entityName );
-	}
-
-	@Override
-	public String getAlias() {
-		return super.getAlias();
-	}
-
-	@Override
-	public LockMode getLockMode() {
-		return super.getLockMode();
+		final EntityType type = (EntityType) owner.retrieveFetchSourcePersister().getPropertyType( ownerProperty );
+		this.persister = sessionFactory.getEntityPersister( type.getAssociatedEntityName() );
 	}
 
 	@Override
@@ -78,6 +72,6 @@ public class EntityReturn extends AbstractFetchOwner implements Return, FetchOwn
 
 	@Override
 	public EntityPersister retrieveFetchSourcePersister() {
-		return getEntityPersister();
+		return persister;
 	}
 }

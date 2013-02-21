@@ -34,48 +34,27 @@ import org.hibernate.persister.entity.EntityPersister;
 /**
  * @author Steve Ebersole
  */
-public class CollectionReturn extends AbstractFetchOwner implements Return, FetchOwner, CollectionReference {
-	private final String ownerEntityName;
-	private final String ownerProperty;
+public class CollectionFetch extends AbstractFetch implements CollectionReference {
 	private final CollectionAliases collectionAliases;
 	private final EntityAliases elementEntityAliases;
 
 	private final CollectionPersister persister;
 
-	public CollectionReturn(
+	public CollectionFetch(
 			SessionFactoryImplementor sessionFactory,
 			String alias,
 			LockMode lockMode,
-			String ownerEntityName,
+			AbstractFetchOwner owner,
+			Style style,
 			String ownerProperty,
 			CollectionAliases collectionAliases,
 			EntityAliases elementEntityAliases) {
-		super( sessionFactory, alias, lockMode );
-		this.ownerEntityName = ownerEntityName;
-		this.ownerProperty = ownerProperty;
+		super( sessionFactory, alias, lockMode, owner, ownerProperty, style );
 		this.collectionAliases = collectionAliases;
 		this.elementEntityAliases = elementEntityAliases;
 
-		final String role = ownerEntityName + '.' + ownerProperty;
+		final String role = owner.retrieveFetchSourcePersister().getEntityName() + '.' + getOwnerPropertyName();
 		this.persister = sessionFactory.getCollectionPersister( role );
-	}
-
-	/**
-	 * Returns the class owning the collection.
-	 *
-	 * @return The class owning the collection.
-	 */
-	public String getOwnerEntityName() {
-		return ownerEntityName;
-	}
-
-	/**
-	 * Returns the name of the property representing the collection from the {@link #getOwnerEntityName}.
-	 *
-	 * @return The name of the property representing the collection on the owner class.
-	 */
-	public String getOwnerProperty() {
-		return ownerProperty;
 	}
 
 	@Override
@@ -95,6 +74,6 @@ public class CollectionReturn extends AbstractFetchOwner implements Return, Fetc
 
 	@Override
 	public EntityPersister retrieveFetchSourcePersister() {
-		return ( (QueryableCollection) persister ).getElementPersister();
+		return ( (QueryableCollection) getCollectionPersister() ).getElementPersister();
 	}
 }

@@ -23,53 +23,42 @@
  */
 package org.hibernate.loader.plan.spi;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.hibernate.HibernateException;
-import org.hibernate.LockMode;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
-
 /**
+ * Contract for entity/collection associations that are being fetched.
+ * <p/>
+ * NOTE : can represent components/embeddables
+ *
  * @author Steve Ebersole
  */
-public abstract class AbstractFetchOwner extends AbstractPlanNode implements FetchOwner {
-	private final String alias;
-	private final LockMode lockMode;
-
-	private List<Fetch> fetches;
-
-	public AbstractFetchOwner(SessionFactoryImplementor factory, String alias, LockMode lockMode) {
-		super( factory );
-		this.alias = alias;
-		if ( alias == null ) {
-			throw new HibernateException( "alias must be specified" );
-		}
-		this.lockMode = lockMode;
+public interface Fetch extends FetchOwner {
+	/**
+	 * Describes *how* an association fetch is being performed.
+	 */
+	public static enum Style {
+		/**
+		 * A "join fetch"
+		 */
+		SQL,
+		/**
+		 * Might be a "select fetch", a "batch fetch", etc.  The important point is that a subsequent
+		 * step is needed.
+		 */
+		SUBSEQUENT
 	}
 
-	public String getAlias() {
-		return alias;
-	}
+	/**
+	 * Obtain the owner of this fetch.
+	 *
+	 * @return The fetch owner.
+	 */
+	public FetchOwner getOwner();
 
-	public LockMode getLockMode() {
-		return lockMode;
-	}
+	/**
+	 * Obtain the name of the property, relative to the owner, being fetched.
+	 *
+	 * @return The fetched property name.
+	 */
+	public String getOwnerPropertyName();
 
-	void addFetch(Fetch fetch) {
-		if ( fetch.getOwner() != this ) {
-			throw new IllegalArgumentException( "Fetch and owner did not match" );
-		}
-
-		if ( fetches == null ) {
-			fetches = new ArrayList<Fetch>();
-		}
-
-		fetches.add( fetch );
-	}
-
-	@Override
-	public Fetch[] getFetches() {
-		return fetches == null ? NO_FETCHES : fetches.toArray( new Fetch[ fetches.size() ] );
-	}
+	public Style getStyle();
 }

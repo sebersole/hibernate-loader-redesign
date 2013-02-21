@@ -1,7 +1,7 @@
 /*
  * Hibernate, Relational Persistence for Idiomatic Java
  *
- * Copyright (c) 2012, Red Hat Inc. or third-party contributors as
+ * Copyright (c) 2013, Red Hat Inc. or third-party contributors as
  * indicated by the @author tags or express copyright attribution
  * statements applied by the authors.  All third-party contributions are
  * distributed under license by Red Hat Inc.
@@ -21,32 +21,15 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.loader.plan.spi;
+package org.hibernate.loader.walking.spi;
 
-import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.type.Type;
 
 /**
- * Represent a simple scalar return within a query result.  Generally this would be values of basic (String, Integer,
- * etc) or composite types.
- *
  * @author Steve Ebersole
  */
-public class ScalarReturn extends AbstractPlanNode implements Return {
-	private final Type type;
-	private final String columnAlias;
-
-	public ScalarReturn(SessionFactoryImplementor factory, Type type, String columnAlias) {
-		super( factory );
-		this.type = type;
-		this.columnAlias = columnAlias;
-	}
-
-	public Type getType() {
-		return type;
-	}
-
-	public String getColumnAlias() {
-		return columnAlias;
-	}
+public interface AttributeDefinition {
+	public String getName();
+	public Type getType();
+	public AttributeSource getSource();
 }

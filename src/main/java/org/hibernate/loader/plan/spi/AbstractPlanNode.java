@@ -23,53 +23,21 @@
  */
 package org.hibernate.loader.plan.spi;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.hibernate.HibernateException;
-import org.hibernate.LockMode;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 
 /**
+ * Base class for LoadPlan nodes to hold references to the session factory.
+ *
  * @author Steve Ebersole
  */
-public abstract class AbstractFetchOwner extends AbstractPlanNode implements FetchOwner {
-	private final String alias;
-	private final LockMode lockMode;
+public class AbstractPlanNode {
+	private final SessionFactoryImplementor sessionFactory;
 
-	private List<Fetch> fetches;
-
-	public AbstractFetchOwner(SessionFactoryImplementor factory, String alias, LockMode lockMode) {
-		super( factory );
-		this.alias = alias;
-		if ( alias == null ) {
-			throw new HibernateException( "alias must be specified" );
-		}
-		this.lockMode = lockMode;
+	public AbstractPlanNode(SessionFactoryImplementor sessionFactory) {
+		this.sessionFactory = sessionFactory;
 	}
 
-	public String getAlias() {
-		return alias;
-	}
-
-	public LockMode getLockMode() {
-		return lockMode;
-	}
-
-	void addFetch(Fetch fetch) {
-		if ( fetch.getOwner() != this ) {
-			throw new IllegalArgumentException( "Fetch and owner did not match" );
-		}
-
-		if ( fetches == null ) {
-			fetches = new ArrayList<Fetch>();
-		}
-
-		fetches.add( fetch );
-	}
-
-	@Override
-	public Fetch[] getFetches() {
-		return fetches == null ? NO_FETCHES : fetches.toArray( new Fetch[ fetches.size() ] );
+	protected SessionFactoryImplementor sessionFactory() {
+		return sessionFactory;
 	}
 }

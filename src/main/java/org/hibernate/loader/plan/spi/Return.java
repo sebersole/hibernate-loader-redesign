@@ -25,6 +25,14 @@ package org.hibernate.loader.plan.spi;
 
 /**
  * Represents a return value in the query results.  Not the same as a result (column) in the JDBC ResultSet!
+ * <p/>
+ * This is merely a unifying contract; it defines no behavior.
+ * <p/>
+ * Return is distinctly different from a {@link Fetch}.
+ *
+ * @see ScalarReturn
+ * @see EntityReturn
+ * @see CollectionReturn
  *
  * @author Steve Ebersole
  */

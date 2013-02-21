@@ -1,7 +1,7 @@
 /*
  * Hibernate, Relational Persistence for Idiomatic Java
  *
- * Copyright (c) 2012, Red Hat Inc. or third-party contributors as
+ * Copyright (c) 2013, Red Hat Inc. or third-party contributors as
  * indicated by the @author tags or express copyright attribution
  * statements applied by the authors.  All third-party contributions are
  * distributed under license by Red Hat Inc.
@@ -21,32 +21,30 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.loader.plan.spi;
-
-import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.type.Type;
+package org.hibernate.loader.walking.spi;
 
 /**
- * Represent a simple scalar return within a query result.  Generally this would be values of basic (String, Integer,
- * etc) or composite types.
- *
  * @author Steve Ebersole
  */
-public class ScalarReturn extends AbstractPlanNode implements Return {
-	private final Type type;
-	private final String columnAlias;
+public interface AssociationVisitationStrategy {
+	/**
+	 * Notification we are preparing to start visitation.
+	 */
+	public void start();
 
-	public ScalarReturn(SessionFactoryImplementor factory, Type type, String columnAlias) {
-		super( factory );
-		this.type = type;
-		this.columnAlias = columnAlias;
-	}
+	/**
+	 * Notification we are finished visitation.
+	 */
+	public void finish();
 
-	public Type getType() {
-		return type;
-	}
+	public void startingEntity(EntityDefinition entityDefinition);
+	public void finishingEntity(EntityDefinition entityDefinition);
 
-	public String getColumnAlias() {
-		return columnAlias;
-	}
+	public void startingCollection(CollectionDefinition collectionDefinition);
+	public void finishingCollection(CollectionDefinition collectionDefinition);
+
+	public void startingComposite(CompositeDefinition compositeDefinition);
+	public void finishingComposite(CompositeDefinition compositeDefinition);
+
+	public boolean handleAttribute(AttributeDefinition attributeDefinition);
 }

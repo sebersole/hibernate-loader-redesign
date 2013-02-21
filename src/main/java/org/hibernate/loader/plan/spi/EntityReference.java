@@ -24,60 +24,50 @@
 package org.hibernate.loader.plan.spi;
 
 import org.hibernate.LockMode;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.loader.EntityAliases;
 import org.hibernate.persister.entity.EntityPersister;
 
 /**
+ * Represents a reference to an entity either as a return or as a fetch
+ *
  * @author Steve Ebersole
  */
-public class EntityReturn extends AbstractFetchOwner implements Return, FetchOwner, EntityReference {
-	private final EntityAliases entityAliases;
-	private final String sqlTableAlias;
+public interface EntityReference {
+	/**
+	 * Retrieve the alias associated with the persister (entity/collection).
+	 *
+	 * @return The alias
+	 */
+	public String getAlias();
 
-	private final EntityPersister persister;
+	/**
+	 * Retrieve the lock mode associated with this return.
+	 *
+	 * @return The lock mode.
+	 */
+	public LockMode getLockMode();
 
-	public EntityReturn(
-			SessionFactoryImplementor sessionFactory,
-			String alias,
-			LockMode lockMode,
-			String entityName,
-			String sqlTableAlias,
-			EntityAliases entityAliases) {
-		super( sessionFactory, alias, lockMode );
-		this.entityAliases = entityAliases;
-		this.sqlTableAlias = sqlTableAlias;
+	/**
+	 * Retrieves the EntityPersister describing the entity associated with this Return.
+	 *
+	 * @return The EntityPersister.
+	 */
+	public EntityPersister getEntityPersister();
 
-		this.persister = sessionFactory.getEntityPersister( entityName );
-	}
+	/**
+	 * Returns the description of the aliases in the JDBC ResultSet that identify values "belonging" to the this entity.
+	 *
+	 * @return The ResultSet alias descriptor.
+	 */
+	public EntityAliases getEntityAliases();
 
-	@Override
-	public String getAlias() {
-		return super.getAlias();
-	}
-
-	@Override
-	public LockMode getLockMode() {
-		return super.getLockMode();
-	}
-
-	@Override
-	public EntityPersister getEntityPersister() {
-		return persister;
-	}
-
-	@Override
-	public EntityAliases getEntityAliases() {
-		return entityAliases;
-	}
-
-	@Override
-	public String getSqlTableAlias() {
-		return sqlTableAlias;
-	}
-
-	@Override
-	public EntityPersister retrieveFetchSourcePersister() {
-		return getEntityPersister();
-	}
+	/**
+	 * Obtain the SQL table alias associated with this entity.
+	 *
+	 * TODO : eventually this needs to not be a String, but a representation like I did for the Antlr3 branch
+	 * 		(AliasRoot, I think it was called)
+	 *
+	 * @return The SQL table alias for this entity
+	 */
+	public String getSqlTableAlias();
 }

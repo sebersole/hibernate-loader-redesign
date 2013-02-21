@@ -1,7 +1,7 @@
 /*
  * Hibernate, Relational Persistence for Idiomatic Java
  *
- * Copyright (c) 2012, Red Hat Inc. or third-party contributors as
+ * Copyright (c) 2013, Red Hat Inc. or third-party contributors as
  * indicated by the @author tags or express copyright attribution
  * statements applied by the authors.  All third-party contributions are
  * distributed under license by Red Hat Inc.
@@ -21,32 +21,33 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.loader.plan.spi;
+package org.hibernate.loader.walking.spi;
 
-import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.type.Type;
+import java.util.Arrays;
 
 /**
- * Represent a simple scalar return within a query result.  Generally this would be values of basic (String, Integer,
- * etc) or composite types.
- *
- * @author Steve Ebersole
+ * Used to uniquely identify a foreign key, so that we don't join it more than once creating circularities.
+ * <p/>
+ * bit of a misnomer to call this an association attribute.  But this follows the legacy use of AssociationKey
+ * from old JoinWalkers to denote circular join detection
  */
-public class ScalarReturn extends AbstractPlanNode implements Return {
-	private final Type type;
-	private final String columnAlias;
+public class AssociationKey {
+	private final String table;
+	private final String[] columns;
 
-	public ScalarReturn(SessionFactoryImplementor factory, Type type, String columnAlias) {
-		super( factory );
-		this.type = type;
-		this.columnAlias = columnAlias;
+	public AssociationKey(String table, String[] columns) {
+		this.table = table;
+		this.columns = columns;
 	}
 
-	public Type getType() {
-		return type;
+	@Override
+	public boolean equals(Object other) {
+		AssociationKey that = (AssociationKey) other;
+		return that.table.equals(table) && Arrays.equals( columns, that.columns );
 	}
 
-	public String getColumnAlias() {
-		return columnAlias;
+	@Override
+	public int hashCode() {
+		return table.hashCode(); //TODO: inefficient
 	}
 }

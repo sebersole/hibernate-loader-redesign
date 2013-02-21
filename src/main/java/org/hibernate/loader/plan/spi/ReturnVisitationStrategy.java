@@ -30,43 +30,48 @@ public interface ReturnVisitationStrategy {
 	/**
 	 * Notification we are preparing to start visitation.
 	 */
-	public void prepare();
+	public void start();
+
+	/**
+	 * Notification we are finished visitation.
+	 */
+	public void finish();
 
 	/**
 	 * Notification that a new RootReturn branch is being started.
 	 *
 	 * @param rootReturn The RootReturn at the root of the branch.
 	 */
-	public void startingRootReturn(RootReturn rootReturn);
+	public void startingRootReturn(Return rootReturn);
 
 	/**
 	 * Notification that we are finishing up processing a RootReturn branch
 	 *
 	 * @param rootReturn The RootReturn we are finishing up processing.
 	 */
-	public void finishingRootReturn(RootReturn rootReturn);
+	public void finishingRootReturn(Return rootReturn);
 
 	/**
 	 * Notification that we are about to start processing the fetches for the given fetch owner.
 	 *
 	 * @param fetchOwner The fetch owner.
 	 */
-	public void startingFetches(FetchReturnOwner fetchOwner);
+	public void startingFetches(FetchOwner fetchOwner);
 
 	/**
 	 * Notification that we are finishing up processing the fetches for the given fetch owner.
 	 *
 	 * @param fetchOwner The fetch owner.
 	 */
-	public void finishingFetches(FetchReturnOwner fetchOwner);
+	public void finishingFetches(FetchOwner fetchOwner);
 
 	public void handleScalarReturn(ScalarReturn scalarReturn);
 
-	public void handleRootEntityReturn(RootEntityReturn rootEntityReturn);
+	public void handleEntityReturn(EntityReturn rootEntityReturn);
 
-	public void handleRootCollectionReturn(RootCollectionReturn rootCollectionReturn);
+	public void handleCollectionReturn(CollectionReturn rootCollectionReturn);
 
-	public void handleFetchedEntityReturn(FetchedEntityReturn fetchedEntityReturn);
+	public void handleEntityFetch(EntityFetch entityFetch);
 
-	public void handleFetchedCollectionReturn(FetchedCollectionReturn fetchedCollectionReturn);
+	public void handleCollectionFetch(CollectionFetch collectionFetch);
 }

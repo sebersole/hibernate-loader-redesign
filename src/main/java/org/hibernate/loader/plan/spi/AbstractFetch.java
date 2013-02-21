@@ -25,59 +25,42 @@ package org.hibernate.loader.plan.spi;
 
 import org.hibernate.LockMode;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.loader.EntityAliases;
-import org.hibernate.persister.entity.EntityPersister;
 
 /**
  * @author Steve Ebersole
  */
-public class EntityReturn extends AbstractFetchOwner implements Return, FetchOwner, EntityReference {
-	private final EntityAliases entityAliases;
-	private final String sqlTableAlias;
+public abstract class AbstractFetch extends AbstractFetchOwner implements Fetch {
+	private final FetchOwner owner;
+	private final String ownerProperty;
+	private final Style style;
 
-	private final EntityPersister persister;
-
-	public EntityReturn(
-			SessionFactoryImplementor sessionFactory,
+	public AbstractFetch(
+			SessionFactoryImplementor factory,
 			String alias,
 			LockMode lockMode,
-			String entityName,
-			String sqlTableAlias,
-			EntityAliases entityAliases) {
-		super( sessionFactory, alias, lockMode );
-		this.entityAliases = entityAliases;
-		this.sqlTableAlias = sqlTableAlias;
+			AbstractFetchOwner owner,
+			String ownerProperty,
+			Style style) {
+		super( factory, alias, lockMode );
+		this.owner = owner;
+		this.ownerProperty = ownerProperty;
+		this.style = style;
 
-		this.persister = sessionFactory.getEntityPersister( entityName );
+		owner.addFetch( this );
 	}
 
 	@Override
-	public String getAlias() {
-		return super.getAlias();
+	public FetchOwner getOwner() {
+		return owner;
 	}
 
 	@Override
-	public LockMode getLockMode() {
-		return super.getLockMode();
+	public String getOwnerPropertyName() {
+		return ownerProperty;
 	}
 
 	@Override
-	public EntityPersister getEntityPersister() {
-		return persister;
-	}
-
-	@Override
-	public EntityAliases getEntityAliases() {
-		return entityAliases;
-	}
-
-	@Override
-	public String getSqlTableAlias() {
-		return sqlTableAlias;
-	}
-
-	@Override
-	public EntityPersister retrieveFetchSourcePersister() {
-		return getEntityPersister();
+	public Style getStyle() {
+		return style;
 	}
 }

@@ -24,40 +24,52 @@
 package org.hibernate.loader.plan.spi;
 
 /**
- * Visitor for processing {@link Return} objects.
+ * Visitor for processing {@link Return} graphs
  *
  * @author Steve Ebersole
  */
 public class ReturnVisitor {
-	public static void visit(RootReturn[] rootReturns, ReturnVisitationStrategy strategy) {
-		strategy.prepare();
-
-		for ( RootReturn rootReturn : rootReturns ) {
-			visitRootReturn( rootReturn, strategy );
-		}
+	public static void visit(Return[] rootReturns, ReturnVisitationStrategy strategy) {
+		new ReturnVisitor( strategy ).visitReturns( rootReturns );
 	}
 
-	private static void visitRootReturn(RootReturn rootReturn, ReturnVisitationStrategy strategy) {
+	private final ReturnVisitationStrategy strategy;
+
+	public ReturnVisitor(ReturnVisitationStrategy strategy) {
+		this.strategy = strategy;
+	}
+
+	private void visitReturns(Return[] rootReturns) {
+		strategy.start();
+
+		for ( Return rootReturn : rootReturns ) {
+			visitRootReturn( rootReturn );
+		}
+
+		strategy.finish();
+	}
+
+	private void visitRootReturn(Return rootReturn) {
 		strategy.startingRootReturn( rootReturn );
 
-		if ( ScalarReturn.class.isInstance( rootReturn ) ) {
+		if ( org.hibernate.loader.plan.spi.ScalarReturn.class.isInstance( rootReturn ) ) {
 			strategy.handleScalarReturn( (ScalarReturn) rootReturn );
 		}
 		else {
-			visitNonScalarRootReturn( rootReturn, strategy );
+			visitNonScalarRootReturn( rootReturn );
 		}
 
 		strategy.finishingRootReturn( rootReturn );
 	}
 
-	private static void visitNonScalarRootReturn(RootReturn rootReturn, ReturnVisitationStrategy strategy) {
-		if ( RootEntityReturn.class.isInstance( rootReturn ) ) {
-			strategy.handleRootEntityReturn( (RootEntityReturn) rootReturn );
-			visitFetches( (RootEntityReturn) rootReturn, strategy );
+	private void visitNonScalarRootReturn(Return rootReturn) {
+		if ( EntityReturn.class.isInstance( rootReturn ) ) {
+			strategy.handleEntityReturn( (EntityReturn) rootReturn );
+			visitFetches( (EntityReturn) rootReturn );
 		}
-		else if ( RootCollectionReturn.class.isInstance( rootReturn ) ) {
-			strategy.handleRootCollectionReturn( (RootCollectionReturn) rootReturn );
-			visitFetches( (RootCollectionReturn) rootReturn, strategy );
+		else if ( CollectionReturn.class.isInstance( rootReturn ) ) {
+			strategy.handleCollectionReturn( (CollectionReturn) rootReturn );
+			visitFetches( (CollectionReturn) rootReturn );
 		}
 		else {
 			throw new IllegalStateException(
@@ -67,29 +79,29 @@ public class ReturnVisitor {
 		}
 	}
 
-	private static void visitFetches(FetchReturnOwner fetchOwner, ReturnVisitationStrategy strategy) {
+	private void visitFetches(FetchOwner fetchOwner) {
 		strategy.startingFetches( fetchOwner );
 
-		for ( FetchReturn fetchReturn : fetchOwner.getFetches() ) {
-			visitFetch( fetchReturn, strategy );
+		for ( Fetch fetch : fetchOwner.getFetches() ) {
+			visitFetch( fetch );
 		}
 
 		strategy.finishingFetches( fetchOwner );
 	}
 
-	private static void visitFetch(FetchReturn fetchReturn, ReturnVisitationStrategy strategy) {
-		if ( FetchedEntityReturn.class.isInstance( fetchReturn ) ) {
-			strategy.handleFetchedEntityReturn( ( FetchedEntityReturn) fetchReturn );
-			visitFetches( fetchReturn, strategy );
+	private void visitFetch(Fetch fetch) {
+		if ( EntityFetch.class.isInstance( fetch ) ) {
+			strategy.handleEntityFetch( (EntityFetch) fetch );
+			visitFetches( fetch );
 		}
-		else if ( FetchedCollectionReturn.class.isInstance( fetchReturn ) ) {
-			strategy.handleFetchedCollectionReturn( ( FetchedCollectionReturn) fetchReturn );
-			visitFetches( fetchReturn, strategy );
+		else if ( CollectionFetch.class.isInstance( fetch ) ) {
+			strategy.handleCollectionFetch( (CollectionFetch) fetch );
+			visitFetches( fetch );
 		}
 		else {
 			throw new IllegalStateException(
 					"Unexpected return type encountered; expecting a fetch return, but found " +
-							fetchReturn.getClass().getName()
+							fetch.getClass().getName()
 			);
 		}
 	}
