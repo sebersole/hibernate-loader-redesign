@@ -23,6 +23,7 @@
  */
 package org.hibernate.loader.plan.spi;
 
+import org.hibernate.loader.FetchPlan;
 import org.hibernate.persister.entity.EntityPersister;
 
 /**
@@ -36,14 +37,19 @@ public interface FetchOwner {
 	 */
 	public static final Fetch[] NO_FETCHES = new Fetch[0];
 
-	// todo : Iterable?
-
 	/**
 	 * Retrieve the fetches owned by this return.
 	 *
 	 * @return The owned fetches.
 	 */
 	public Fetch[] getFetches();
+
+	/**
+	 * Is the asserted plan valid from this owner to a fetch?
+	 *
+	 * @param fetchPlan The pla to validate
+	 */
+	public void validateFetchPlan(FetchPlan fetchPlan);
 
 	/**
 	 * Retrieve the EntityPersister that is the base for any property references in the fetches it owns.

@@ -1,5 +1,5 @@
 /*
- * Hibernate, Relational Persistence for Idiomatic Java
+ * jDocBook, processing of DocBook sources
  *
  * Copyright (c) 2013, Red Hat Inc. or third-party contributors as
  * indicated by the @author tags or express copyright attribution
@@ -21,31 +21,28 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.loader.walking.spi;
+package org.hibernate.loader;
+
+import org.hibernate.engine.FetchStyle;
+import org.hibernate.engine.FetchTiming;
 
 /**
  * @author Steve Ebersole
  */
-public interface AssociationVisitationStrategy {
-	/**
-	 * Notification we are preparing to start visitation.
-	 */
-	public void start();
+public class FetchPlan {
+	private final FetchTiming timing;
+	private final FetchStyle style;
 
-	/**
-	 * Notification we are finished visitation.
-	 */
-	public void finish();
+	public FetchPlan(FetchTiming timing, FetchStyle style) {
+		this.timing = timing;
+		this.style = style;
+	}
 
-	public void startingEntity(EntityDefinition entityDefinition);
-	public void finishingEntity(EntityDefinition entityDefinition);
+	public FetchTiming getTiming() {
+		return timing;
+	}
 
-	public void startingCollection(CollectionDefinition collectionDefinition);
-	public void finishingCollection(CollectionDefinition collectionDefinition);
-
-	public void startingComposite(CompositeDefinition compositeDefinition);
-	public void finishingComposite(CompositeDefinition compositeDefinition);
-
-	public boolean handleAttribute(AttributeDefinition attributeDefinition);
-	public void finishingAttribute(AttributeDefinition attributeDefinition);
+	public FetchStyle getStyle() {
+		return style;
+	}
 }

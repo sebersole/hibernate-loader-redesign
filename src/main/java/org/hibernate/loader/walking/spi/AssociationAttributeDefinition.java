@@ -23,6 +23,10 @@
  */
 package org.hibernate.loader.walking.spi;
 
+import org.hibernate.engine.spi.LoadQueryInfluencers;
+import org.hibernate.loader.FetchPlan;
+import org.hibernate.loader.PropertyPath;
+
 /**
  * @author Steve Ebersole
  */
@@ -34,4 +38,6 @@ public interface AssociationAttributeDefinition extends AttributeDefinition {
 	public EntityDefinition toEntityDefinition();
 
 	public CollectionDefinition toCollectionDefinition();
+
+	public FetchPlan determineFetchPlan(LoadQueryInfluencers loadQueryInfluencers, PropertyPath propertyPath);
 }

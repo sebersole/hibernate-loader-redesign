@@ -23,8 +23,12 @@
  */
 package org.hibernate.loader.walking.spi;
 
+import org.hibernate.persister.entity.EntityPersister;
+
 /**
  * @author Steve Ebersole
  */
 public interface EntityDefinition extends AttributeSource {
+	public EntityPersister getEntityPersister();
+	public Iterable<AttributeDefinition> getEmbeddedCompositeIdentifierAttributes();
 }

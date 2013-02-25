@@ -23,8 +23,11 @@
  */
 package org.hibernate.loader.plan.spi;
 
+import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
+import org.hibernate.engine.FetchStyle;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.loader.FetchPlan;
 
 /**
  * @author Steve Ebersole
@@ -32,7 +35,7 @@ import org.hibernate.engine.spi.SessionFactoryImplementor;
 public abstract class AbstractFetch extends AbstractFetchOwner implements Fetch {
 	private final FetchOwner owner;
 	private final String ownerProperty;
-	private final Style style;
+	private final FetchPlan fetchPlan;
 
 	public AbstractFetch(
 			SessionFactoryImplementor factory,
@@ -40,11 +43,11 @@ public abstract class AbstractFetch extends AbstractFetchOwner implements Fetch 
 			LockMode lockMode,
 			AbstractFetchOwner owner,
 			String ownerProperty,
-			Style style) {
+			FetchPlan fetchPlan) {
 		super( factory, alias, lockMode );
 		this.owner = owner;
 		this.ownerProperty = ownerProperty;
-		this.style = style;
+		this.fetchPlan = fetchPlan;
 
 		owner.addFetch( this );
 	}
@@ -60,7 +63,16 @@ public abstract class AbstractFetch extends AbstractFetchOwner implements Fetch 
 	}
 
 	@Override
-	public Style getStyle() {
-		return style;
+	public FetchPlan getFetchPlan() {
+		return fetchPlan;
+	}
+
+	@Override
+	public void validateFetchPlan(FetchPlan fetchPlan) {
+		if ( fetchPlan.getStyle() == FetchStyle.JOIN ) {
+			if ( this.fetchPlan.getStyle() != FetchStyle.JOIN ) {
+				throw new HibernateException( "Cannot specify join fetch from owner that is a non-joined fetch" );
+			}
+		}
 	}
 }

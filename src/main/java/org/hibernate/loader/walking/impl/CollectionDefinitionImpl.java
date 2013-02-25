@@ -28,6 +28,7 @@ import org.hibernate.loader.walking.spi.CollectionElementDefinition;
 import org.hibernate.loader.walking.spi.CollectionIndexDefinition;
 import org.hibernate.loader.walking.spi.CompositeDefinition;
 import org.hibernate.loader.walking.spi.EntityDefinition;
+import org.hibernate.persister.collection.CollectionPersister;
 import org.hibernate.persister.collection.QueryableCollection;
 import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.type.AssociationType;
@@ -47,6 +48,11 @@ public class CollectionDefinitionImpl implements CollectionDefinition {
 	@Override
 	public CollectionType getType() {
 		return persister.getCollectionType();
+	}
+
+	@Override
+	public CollectionPersister getCollectionPersister() {
+		return persister;
 	}
 
 	@Override

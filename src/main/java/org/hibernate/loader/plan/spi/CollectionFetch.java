@@ -27,6 +27,7 @@ import org.hibernate.LockMode;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.loader.CollectionAliases;
 import org.hibernate.loader.EntityAliases;
+import org.hibernate.loader.FetchPlan;
 import org.hibernate.persister.collection.CollectionPersister;
 import org.hibernate.persister.collection.QueryableCollection;
 import org.hibernate.persister.entity.EntityPersister;
@@ -45,11 +46,11 @@ public class CollectionFetch extends AbstractFetch implements CollectionReferenc
 			String alias,
 			LockMode lockMode,
 			AbstractFetchOwner owner,
-			Style style,
+			FetchPlan fetchPlan,
 			String ownerProperty,
 			CollectionAliases collectionAliases,
 			EntityAliases elementEntityAliases) {
-		super( sessionFactory, alias, lockMode, owner, ownerProperty, style );
+		super( sessionFactory, alias, lockMode, owner, ownerProperty, fetchPlan );
 		this.collectionAliases = collectionAliases;
 		this.elementEntityAliases = elementEntityAliases;
 

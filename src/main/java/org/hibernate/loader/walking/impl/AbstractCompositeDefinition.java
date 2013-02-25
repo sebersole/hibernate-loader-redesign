@@ -30,6 +30,8 @@ import org.hibernate.loader.walking.spi.AssociationKey;
 import org.hibernate.loader.walking.spi.AttributeDefinition;
 import org.hibernate.loader.walking.spi.AttributeSource;
 import org.hibernate.loader.walking.spi.CompositeDefinition;
+import org.hibernate.loader.walking.spi.EntityDefinition;
+import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.persister.entity.Joinable;
 import org.hibernate.persister.entity.OuterJoinLoadable;
 import org.hibernate.type.AssociationType;
@@ -119,7 +121,8 @@ public abstract class AbstractCompositeDefinition extends AbstractAttributeDefin
 									attributeNumber(),
 									associationKey,
 									name,
-									(AssociationType) type
+									(AssociationType) type,
+									AbstractCompositeDefinition.this.attributeNumber()
 							);
 						}
 						else if ( type.isComponentType() ) {
@@ -150,4 +153,14 @@ public abstract class AbstractCompositeDefinition extends AbstractAttributeDefin
 			}
 		};
 	}
+
+	public EntityPersister locateOwningPersister() {
+		if ( EntityDefinition.class.isInstance( getSource() ) ) {
+			return ( (EntityDefinition) getSource() ).getEntityPersister();
+		}
+		else {
+			return ( (AbstractCompositeDefinition) getSource() ).locateOwningPersister();
+		}
+	}
 }
+

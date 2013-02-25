@@ -1,6 +1,10 @@
 package org.hibernate.loader.walking.impl;
 
+import org.hibernate.engine.FetchStyle;
+import org.hibernate.engine.spi.LoadQueryInfluencers;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.loader.FetchPlan;
+import org.hibernate.loader.PropertyPath;
 import org.hibernate.loader.walking.spi.AssociationAttributeDefinition;
 import org.hibernate.loader.walking.spi.AssociationKey;
 import org.hibernate.loader.walking.spi.CollectionDefinition;
@@ -91,5 +95,30 @@ public class EntityBasedAssociationAttribute
 			throw new IllegalStateException( "Cannot treat entity-valued attribute as collection type" );
 		}
 		return new CollectionDefinitionImpl( (QueryableCollection) getJoinable() );
+	}
+
+	@Override
+	public FetchPlan determineFetchPlan(
+			LoadQueryInfluencers loadQueryInfluencers, PropertyPath propertyPath) {
+		final EntityPersister owningPersister = getSource().getEntityPersister();
+
+		FetchStyle style = Helper.determineFetchStyleByProfile(
+				loadQueryInfluencers,
+				owningPersister,
+				propertyPath,
+				attributeNumber()
+		);
+		if ( style == null ) {
+			style = Helper.determineFetchStyleByMetadata(
+					( (OuterJoinLoadable) getSource().getEntityPersister() ).getFetchMode( attributeNumber() ),
+					getType(),
+					sessionFactory()
+			);
+		}
+
+		return new FetchPlan(
+				Helper.determineFetchTiming( style, getType(), sessionFactory() ),
+				style
+		);
 	}
 }

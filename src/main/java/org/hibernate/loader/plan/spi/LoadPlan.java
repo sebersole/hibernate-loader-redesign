@@ -23,6 +23,8 @@
  */
 package org.hibernate.loader.plan.spi;
 
+import java.util.List;
+
 /**
  * Describes a plan for performing a load of results.
  *
@@ -51,7 +53,7 @@ public interface LoadPlan {
 	 */
 	public boolean hasAnyScalarReturns();
 
-	public Iterable<Return> getReturns();
+	public List<Return> getReturns();
 
 	// todo : would also like to see "call back" style access for handling "subsequent actions" such as:
 	// 		1) follow-on locking

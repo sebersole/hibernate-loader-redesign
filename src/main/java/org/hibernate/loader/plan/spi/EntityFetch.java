@@ -26,6 +26,7 @@ package org.hibernate.loader.plan.spi;
 import org.hibernate.LockMode;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.loader.EntityAliases;
+import org.hibernate.loader.FetchPlan;
 import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.type.EntityType;
 
@@ -44,10 +45,10 @@ public class EntityFetch extends AbstractFetch implements EntityReference {
 			LockMode lockMode,
 			AbstractFetchOwner owner,
 			String ownerProperty,
-			Style style,
+			FetchPlan fetchPlan,
 			String sqlTableAlias,
 			EntityAliases entityAliases) {
-		super( sessionFactory, alias, lockMode, owner, ownerProperty, style );
+		super( sessionFactory, alias, lockMode, owner, ownerProperty, fetchPlan );
 		this.sqlTableAlias = sqlTableAlias;
 		this.entityAliases = entityAliases;
 

@@ -28,18 +28,12 @@ import java.util.Set;
 
 import org.jboss.logging.Logger;
 
-import org.hibernate.engine.internal.JoinHelper;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.loader.PropertyPath;
-import org.hibernate.loader.walking.impl.AbstractCompositeBasedAttribute;
 import org.hibernate.loader.walking.impl.CollectionDefinitionImpl;
-import org.hibernate.loader.walking.impl.EntityBasedCompositeAttribute;
 import org.hibernate.loader.walking.impl.EntityDefinitionImpl;
 import org.hibernate.persister.collection.QueryableCollection;
 import org.hibernate.persister.entity.EntityPersister;
-import org.hibernate.persister.entity.Joinable;
-import org.hibernate.type.AssociationType;
-import org.hibernate.type.ForeignKeyDirection;
 import org.hibernate.type.Type;
 
 /**
@@ -95,49 +89,45 @@ public class MetadataDrivenAssociationVisitor {
 	}
 
 	private void optionallyVisitEmbeddedCompositeIdentifier(EntityDefinition entityDefinition) {
-		// if the entity has a composite identifier, see if we need to handle
-		// its sub-properties separately
-//		final Type idType = entityDefinition.getPersister().getIdentifierType();
-//		if ( idType.isComponentType() ) {
-//			final CompositeType cidType = (CompositeType) idType;
-//			if ( cidType.isEmbedded() ) {
-//				// we have an embedded composite identifier.  Most likely we need to process the composite
-//				// properties separately, although there is an edge case where the identifier is really
-//				// a simple identifier (single value) wrapped in a JPA @IdClass or even in the case of a
-//				// a simple identifier (single value) wrapped in a Hibernate composite type.
-//				//
-//				// We really do not have a built-in method to determine that.  However, generally the
-//				// persister would report that there is single, physical identifier property which is
-//				// explicitly at odds with the notion of "embedded composite".  So we use that for now
-//				if ( entityDefinition.getPersister().getEntityMetamodel().getIdentifierProperty().isEmbedded() ) {
-//					walkComponentDefinition( cidType );
-//				}
-//			}
-//		}
+		// if the entity has a composite identifier, see if we need to handle its sub-properties separately
+		final Iterable<AttributeDefinition> embeddedCompositeIdentifierAttributes =
+				entityDefinition.getEmbeddedCompositeIdentifierAttributes();
+		if ( embeddedCompositeIdentifierAttributes == null ) {
+			return;
+		}
+
+		for ( AttributeDefinition attributeDefinition : embeddedCompositeIdentifierAttributes ) {
+			visitAttributeDefinition( attributeDefinition );
+		}
 	}
 
 	private void visitAttributes(AttributeSource attributeSource) {
 		for ( AttributeDefinition attributeDefinition : attributeSource.getAttributes() ) {
-			final PropertyPath subPath = currentPropertyPath.append( attributeDefinition.getName() );
-			log.debug( "Visiting attribute path : " + subPath.getFullPath() );
+			visitAttributeDefinition( attributeDefinition );
+		}
+	}
 
-			final boolean continueWalk = strategy.handleAttribute( attributeDefinition );
-			if ( continueWalk ) {
-				final PropertyPath old = currentPropertyPath;
-				currentPropertyPath = subPath;
-				try {
-					if ( attributeDefinition.getType().isAssociationType() ) {
-						visitAssociation( (AssociationAttributeDefinition) attributeDefinition );
-					}
-					else if ( attributeDefinition.getType().isComponentType() ) {
-						visitCompositeDefinition( (CompositeDefinition) attributeDefinition );
-					}
+	private void visitAttributeDefinition(AttributeDefinition attributeDefinition) {
+		final PropertyPath subPath = currentPropertyPath.append( attributeDefinition.getName() );
+		log.debug( "Visiting attribute path : " + subPath.getFullPath() );
+
+		final boolean continueWalk = strategy.handleAttribute( attributeDefinition );
+		if ( continueWalk ) {
+			final PropertyPath old = currentPropertyPath;
+			currentPropertyPath = subPath;
+			try {
+				if ( attributeDefinition.getType().isAssociationType() ) {
+					visitAssociation( (AssociationAttributeDefinition) attributeDefinition );
 				}
-				finally {
-					currentPropertyPath = old;
+				else if ( attributeDefinition.getType().isComponentType() ) {
+					visitCompositeDefinition( (CompositeDefinition) attributeDefinition );
 				}
 			}
+			finally {
+				currentPropertyPath = old;
+			}
 		}
+		strategy.finishingAttribute( attributeDefinition );
 	}
 
 	private void visitAssociation(AssociationAttributeDefinition attribute) {

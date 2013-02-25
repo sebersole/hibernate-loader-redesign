@@ -147,6 +147,11 @@ public class BasicWalkingTest extends BaseCoreFunctionalTestCase {
 						);
 						return true;
 					}
+
+					@Override
+					public void finishingAttribute(AttributeDefinition attributeDefinition) {
+						// nothing to do
+					}
 				},
 				ep
 		);

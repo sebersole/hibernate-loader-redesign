@@ -27,6 +27,7 @@ import org.hibernate.LockMode;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.loader.CollectionAliases;
 import org.hibernate.loader.EntityAliases;
+import org.hibernate.loader.FetchPlan;
 import org.hibernate.persister.collection.CollectionPersister;
 import org.hibernate.persister.collection.QueryableCollection;
 import org.hibernate.persister.entity.EntityPersister;
@@ -91,6 +92,10 @@ public class CollectionReturn extends AbstractFetchOwner implements Return, Fetc
 	@Override
 	public CollectionPersister getCollectionPersister() {
 		return persister;
+	}
+
+	@Override
+	public void validateFetchPlan(FetchPlan fetchPlan) {
 	}
 
 	@Override

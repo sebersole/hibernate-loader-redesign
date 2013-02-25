@@ -26,6 +26,7 @@ package org.hibernate.loader.plan.spi;
 import org.hibernate.LockMode;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.loader.EntityAliases;
+import org.hibernate.loader.FetchPlan;
 import org.hibernate.persister.entity.EntityPersister;
 
 /**
@@ -74,6 +75,10 @@ public class EntityReturn extends AbstractFetchOwner implements Return, FetchOwn
 	@Override
 	public String getSqlTableAlias() {
 		return sqlTableAlias;
+	}
+
+	@Override
+	public void validateFetchPlan(FetchPlan fetchPlan) {
 	}
 
 	@Override

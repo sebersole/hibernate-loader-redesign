@@ -23,12 +23,14 @@
  */
 package org.hibernate.loader.walking.spi;
 
+import org.hibernate.persister.collection.CollectionPersister;
 import org.hibernate.type.CollectionType;
 
 /**
  * @author Steve Ebersole
  */
 public interface CollectionDefinition {
+	public CollectionPersister getCollectionPersister();
 	public CollectionType getType();
 
 	public CollectionIndexDefinition getIndexDefinition();

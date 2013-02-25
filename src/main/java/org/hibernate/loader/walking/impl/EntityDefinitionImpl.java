@@ -107,6 +107,58 @@ public class EntityDefinitionImpl implements EntityDefinition {
 	}
 
 	@Override
+	public EntityPersister getEntityPersister() {
+		return persister;
+	}
+
+	@Override
+	public Iterable<AttributeDefinition> getEmbeddedCompositeIdentifierAttributes() {
+		final Type idType = persister.getIdentifierType();
+		if ( idType.isComponentType() ) {
+			final CompositeType cidType = (CompositeType) idType;
+			if ( cidType.isEmbedded() ) {
+				// we have an embedded composite identifier.  Most likely we need to process the composite
+				// properties separately, although there is an edge case where the identifier is really
+				// a simple identifier (single value) wrapped in a JPA @IdClass or even in the case of a
+				// a simple identifier (single value) wrapped in a Hibernate composite type.
+				//
+				// We really do not have a built-in method to determine that.  However, generally the
+				// persister would report that there is single, physical identifier property which is
+				// explicitly at odds with the notion of "embedded composite".  So we use that for now
+				if ( persister.getEntityMetamodel().getIdentifierProperty().isEmbedded() ) {
+					return new Iterable<AttributeDefinition>() {
+						@Override
+						public Iterator<AttributeDefinition> iterator() {
+							return new Iterator<AttributeDefinition>() {
+								private final int numberOfAttributes = persister.countSubclassProperties();
+								private int currentAttributeNumber = 0;
+
+								@Override
+								public boolean hasNext() {
+									return currentAttributeNumber < numberOfAttributes;
+								}
+
+								@Override
+								public AttributeDefinition next() {
+									// todo : implement
+									return null;  //To change body of implemented methods use File | Settings | File Templates.
+								}
+
+								@Override
+								public void remove() {
+									throw new UnsupportedOperationException( "Remove operation not supported here" );
+								}
+							};
+						}
+					};
+				}
+			}
+		}
+
+		return null;
+	}
+
+	@Override
 	public String toString() {
 		return "EntityDefinition(" + persister.getEntityName() + ")";
 	}

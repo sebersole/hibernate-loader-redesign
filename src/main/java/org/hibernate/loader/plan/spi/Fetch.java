@@ -23,29 +23,16 @@
  */
 package org.hibernate.loader.plan.spi;
 
+import org.hibernate.loader.FetchPlan;
+
 /**
- * Contract for entity/collection associations that are being fetched.
+ * Contract for associations that are being fetched.
  * <p/>
  * NOTE : can represent components/embeddables
  *
  * @author Steve Ebersole
  */
 public interface Fetch extends FetchOwner {
-	/**
-	 * Describes *how* an association fetch is being performed.
-	 */
-	public static enum Style {
-		/**
-		 * A "join fetch"
-		 */
-		SQL,
-		/**
-		 * Might be a "select fetch", a "batch fetch", etc.  The important point is that a subsequent
-		 * step is needed.
-		 */
-		SUBSEQUENT
-	}
-
 	/**
 	 * Obtain the owner of this fetch.
 	 *
@@ -60,5 +47,5 @@ public interface Fetch extends FetchOwner {
 	 */
 	public String getOwnerPropertyName();
 
-	public Style getStyle();
+	public FetchPlan getFetchPlan();
 }

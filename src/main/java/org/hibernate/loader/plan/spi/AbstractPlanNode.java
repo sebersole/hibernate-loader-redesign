@@ -30,7 +30,7 @@ import org.hibernate.engine.spi.SessionFactoryImplementor;
  *
  * @author Steve Ebersole
  */
-public class AbstractPlanNode {
+public abstract class AbstractPlanNode {
 	private final SessionFactoryImplementor sessionFactory;
 
 	public AbstractPlanNode(SessionFactoryImplementor sessionFactory) {

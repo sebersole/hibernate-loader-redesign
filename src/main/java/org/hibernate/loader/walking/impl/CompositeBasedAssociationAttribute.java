@@ -23,14 +23,21 @@
  */
 package org.hibernate.loader.walking.impl;
 
+import org.hibernate.FetchMode;
+import org.hibernate.engine.FetchStyle;
+import org.hibernate.engine.FetchTiming;
+import org.hibernate.engine.spi.LoadQueryInfluencers;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.loader.FetchPlan;
+import org.hibernate.loader.PropertyPath;
 import org.hibernate.loader.walking.spi.AssociationAttributeDefinition;
 import org.hibernate.loader.walking.spi.AssociationKey;
 import org.hibernate.loader.walking.spi.CollectionDefinition;
-import org.hibernate.loader.walking.spi.CompositeDefinition;
 import org.hibernate.loader.walking.spi.EntityDefinition;
+import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.persister.entity.Joinable;
 import org.hibernate.type.AssociationType;
+import org.hibernate.type.Type;
 
 /**
  * @author Steve Ebersole
@@ -43,13 +50,14 @@ public class CompositeBasedAssociationAttribute
 	private Joinable joinable;
 
 	public CompositeBasedAssociationAttribute(
-			CompositeDefinition source,
+			AbstractCompositeDefinition source,
 			SessionFactoryImplementor factory,
 			int attributeNumber,
 			AssociationKey associationKey,
 			String attributeName,
-			AssociationType attributeType) {
-		super( source, factory, attributeNumber, attributeName, attributeType );
+			AssociationType attributeType,
+			int ownerAttributeNumber) {
+		super( source, factory, attributeNumber, attributeName, attributeType, ownerAttributeNumber );
 		this.associationKey = associationKey;
 	}
 
@@ -91,5 +99,50 @@ public class CompositeBasedAssociationAttribute
 		}
 		// todo : implement
 		return null;
+	}
+
+	@Override
+	public FetchPlan determineFetchPlan(LoadQueryInfluencers loadQueryInfluencers, PropertyPath propertyPath) {
+		final EntityPersister owningPersister = locateOwningPersister();
+
+		FetchStyle style = determineFetchStyleByProfile(
+				loadQueryInfluencers,
+				owningPersister,
+				propertyPath,
+				getOwnerAttributeNumber()
+		);
+		if ( style == null ) {
+			style = determineFetchStyleByMetadata(
+					getSource().getType().getFetchMode( getAttributeNumber() ),
+					getType()
+			);
+		}
+
+		return new FetchPlan( determineFetchTiming( style ), style );
+	}
+
+	protected FetchStyle determineFetchStyleByProfile(
+			LoadQueryInfluencers loadQueryInfluencers,
+			EntityPersister owningPersister,
+			PropertyPath propertyPath,
+			int ownerAttributeNumber) {
+		return Helper.determineFetchStyleByProfile(
+				loadQueryInfluencers,
+				owningPersister,
+				propertyPath,
+				ownerAttributeNumber
+		);
+	}
+
+	protected FetchStyle determineFetchStyleByMetadata(FetchMode fetchMode, AssociationType type) {
+		return Helper.determineFetchStyleByMetadata( fetchMode, type, getSessionFactory() );
+	}
+
+	private FetchTiming determineFetchTiming(FetchStyle style) {
+		return Helper.determineFetchTiming( style, getType(), getSessionFactory() );
+	}
+
+	private EntityPersister locateOwningPersister() {
+		return getSource().locateOwningPersister();
 	}
 }

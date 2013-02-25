@@ -25,31 +25,33 @@ package org.hibernate.loader.walking.impl;
 
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.loader.walking.spi.AttributeDefinition;
-import org.hibernate.loader.walking.spi.AttributeSource;
-import org.hibernate.loader.walking.spi.CompositeDefinition;
 import org.hibernate.type.Type;
 
 /**
  * @author Steve Ebersole
  */
 public abstract class AbstractCompositeBasedAttribute implements AttributeDefinition {
-	private final CompositeDefinition source;
+	private final AbstractCompositeDefinition source;
 	private final SessionFactoryImplementor sessionFactory;
 	private final int attributeNumber;
 	private final String attributeName;
 	private final Type attributeType;
 
+	private final int ownerAttributeNumber;
+
 	public AbstractCompositeBasedAttribute(
-			CompositeDefinition source,
+			AbstractCompositeDefinition source,
 			SessionFactoryImplementor sessionFactory,
 			int attributeNumber,
 			String attributeName,
-			Type attributeType) {
+			Type attributeType,
+			int ownerAttributeNumber) {
 		this.source = source;
 		this.sessionFactory = sessionFactory;
 		this.attributeNumber = attributeNumber;
 		this.attributeName = attributeName;
 		this.attributeType = attributeType;
+		this.ownerAttributeNumber = ownerAttributeNumber;
 	}
 
 	@Override
@@ -62,8 +64,16 @@ public abstract class AbstractCompositeBasedAttribute implements AttributeDefini
 		return attributeType;
 	}
 
+	protected int getAttributeNumber() {
+		return attributeNumber;
+	}
+
+	protected int getOwnerAttributeNumber() {
+		return ownerAttributeNumber;
+	}
+
 	@Override
-	public CompositeDefinition getSource() {
+	public AbstractCompositeDefinition getSource() {
 		return source;
 	}
 
