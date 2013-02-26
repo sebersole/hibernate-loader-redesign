@@ -1,5 +1,5 @@
 /*
- * Hibernate, Relational Persistence for Idiomatic Java
+ * jDocBook, processing of DocBook sources
  *
  * Copyright (c) 2013, Red Hat Inc. or third-party contributors as
  * indicated by the @author tags or express copyright attribution
@@ -21,26 +21,35 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.loader.walking.spi;
+package org.hibernate.loader.plan.impl;
 
-import org.hibernate.engine.spi.CascadeStyle;
-import org.hibernate.engine.spi.LoadQueryInfluencers;
-import org.hibernate.loader.FetchPlan;
-import org.hibernate.loader.PropertyPath;
+import java.util.List;
+
+import org.hibernate.loader.plan.spi.LoadPlan;
+import org.hibernate.loader.plan.spi.Return;
 
 /**
+ * Implementation of LoadPlan.
+ *
  * @author Steve Ebersole
  */
-public interface AssociationAttributeDefinition extends AttributeDefinition {
-	public AssociationKey getAssociationKey();
+public class LoadPlanImpl implements LoadPlan {
+	private final boolean hasScalars;
+	private final List<Return> returns;
 
-	public boolean isCollection();
+	public LoadPlanImpl(boolean hasScalars, List<Return> returns) {
 
-	public EntityDefinition toEntityDefinition();
+		this.hasScalars = hasScalars;
+		this.returns = returns;
+	}
 
-	public CollectionDefinition toCollectionDefinition();
+	@Override
+	public boolean hasAnyScalarReturns() {
+		return hasScalars;
+	}
 
-	public FetchPlan determineFetchPlan(LoadQueryInfluencers loadQueryInfluencers, PropertyPath propertyPath);
-
-	public CascadeStyle determineCascadeStyle();
+	@Override
+	public List<Return> getReturns() {
+		return returns;
+	}
 }

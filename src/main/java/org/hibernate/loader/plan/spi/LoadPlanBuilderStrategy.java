@@ -1,5 +1,5 @@
 /*
- * Hibernate, Relational Persistence for Idiomatic Java
+ * jDocBook, processing of DocBook sources
  *
  * Copyright (c) 2013, Red Hat Inc. or third-party contributors as
  * indicated by the @author tags or express copyright attribution
@@ -21,26 +21,20 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.loader.walking.spi;
+package org.hibernate.loader.plan.spi;
 
-import org.hibernate.engine.spi.CascadeStyle;
-import org.hibernate.engine.spi.LoadQueryInfluencers;
-import org.hibernate.loader.FetchPlan;
-import org.hibernate.loader.PropertyPath;
+import org.hibernate.loader.walking.spi.AssociationVisitationStrategy;
 
 /**
+ * Specialized {@link AssociationVisitationStrategy} implementation for building {@link LoadPlan} instances.
+ *
  * @author Steve Ebersole
  */
-public interface AssociationAttributeDefinition extends AttributeDefinition {
-	public AssociationKey getAssociationKey();
-
-	public boolean isCollection();
-
-	public EntityDefinition toEntityDefinition();
-
-	public CollectionDefinition toCollectionDefinition();
-
-	public FetchPlan determineFetchPlan(LoadQueryInfluencers loadQueryInfluencers, PropertyPath propertyPath);
-
-	public CascadeStyle determineCascadeStyle();
+public interface LoadPlanBuilderStrategy extends AssociationVisitationStrategy {
+	/**
+	 * After visitation is done, build the load plan.
+	 *
+	 * @return The load plan
+	 */
+	public LoadPlan buildLoadPlan();
 }

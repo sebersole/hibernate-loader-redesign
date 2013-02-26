@@ -26,6 +26,7 @@ package org.hibernate.loader.walking.impl;
 import org.hibernate.FetchMode;
 import org.hibernate.engine.FetchStyle;
 import org.hibernate.engine.FetchTiming;
+import org.hibernate.engine.spi.CascadeStyle;
 import org.hibernate.engine.spi.LoadQueryInfluencers;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.loader.FetchPlan;
@@ -37,6 +38,7 @@ import org.hibernate.loader.walking.spi.EntityDefinition;
 import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.persister.entity.Joinable;
 import org.hibernate.type.AssociationType;
+import org.hibernate.type.CompositeType;
 import org.hibernate.type.Type;
 
 /**
@@ -144,5 +146,11 @@ public class CompositeBasedAssociationAttribute
 
 	private EntityPersister locateOwningPersister() {
 		return getSource().locateOwningPersister();
+	}
+
+	@Override
+	public CascadeStyle determineCascadeStyle() {
+		final CompositeType compositeType = (CompositeType) locateOwningPersister().getPropertyType( getName() );
+		return compositeType.getCascadeStyle( getAttributeNumber() );
 	}
 }

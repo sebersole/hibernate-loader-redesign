@@ -21,37 +21,37 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.loader.plan.spi;
+package org.hibernate.loader.plan.impl;
 
+import org.hibernate.engine.FetchStyle;
+import org.hibernate.engine.FetchTiming;
+import org.hibernate.engine.spi.CascadingAction;
 import org.hibernate.engine.spi.LoadQueryInfluencers;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.loader.plan.impl.RootEntityLoadPlanBuilderStrategy;
-import org.hibernate.loader.walking.spi.MetadataDrivenAssociationVisitor;
-import org.hibernate.persister.entity.EntityPersister;
+import org.hibernate.loader.FetchPlan;
+import org.hibernate.loader.walking.spi.AssociationAttributeDefinition;
 
 /**
  * @author Steve Ebersole
  */
-public class LoadPlanBuilder {
-	private final SessionFactoryImplementor sessionFactory;
+public class CascadeBasedEntityLoadPlanBuilder extends RootEntityLoadPlanBuilderStrategy {
+	private static final FetchPlan EAGER = new FetchPlan( FetchTiming.IMMEDIATE, FetchStyle.JOIN );
+	private static final FetchPlan DELAYED = new FetchPlan( FetchTiming.DELAYED, FetchStyle.SELECT );
 
-	public LoadPlanBuilder(SessionFactoryImplementor sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
+	private final CascadingAction cascadeActionToMatch;
 
-	public static LoadPlan buildEntityLoadPlan(LoadPlanBuilderStrategy strategy, EntityPersister persister) {
-		MetadataDrivenAssociationVisitor.visitEntity( strategy, persister );
-		return strategy.buildLoadPlan();
-	}
-
-	public LoadPlan buildEntityLoadPlan(
+	public CascadeBasedEntityLoadPlanBuilder(
+			CascadingAction cascadeActionToMatch,
+			SessionFactoryImplementor sessionFactory,
 			LoadQueryInfluencers loadQueryInfluencers,
-			EntityPersister persister,
-			String alias,
+			String rootAlias,
 			int suffixSeed) {
-		return buildEntityLoadPlan(
-				new RootEntityLoadPlanBuilderStrategy( sessionFactory, loadQueryInfluencers, alias, suffixSeed ),
-				persister
-		);
+		super( sessionFactory, loadQueryInfluencers, rootAlias, suffixSeed );
+		this.cascadeActionToMatch = cascadeActionToMatch;
+	}
+
+	@Override
+	protected FetchPlan determineFetchPlan(AssociationAttributeDefinition attributeDefinition) {
+		return attributeDefinition.determineCascadeStyle().doCascade( cascadeActionToMatch ) ? EAGER : DELAYED;
 	}
 }

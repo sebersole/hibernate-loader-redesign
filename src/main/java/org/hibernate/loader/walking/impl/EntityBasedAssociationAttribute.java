@@ -1,6 +1,7 @@
 package org.hibernate.loader.walking.impl;
 
 import org.hibernate.engine.FetchStyle;
+import org.hibernate.engine.spi.CascadeStyle;
 import org.hibernate.engine.spi.LoadQueryInfluencers;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.loader.FetchPlan;
@@ -14,6 +15,7 @@ import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.persister.entity.Joinable;
 import org.hibernate.persister.entity.OuterJoinLoadable;
 import org.hibernate.type.AssociationType;
+import org.hibernate.type.CompositeType;
 import org.hibernate.type.ForeignKeyDirection;
 
 import static org.hibernate.engine.internal.JoinHelper.getLHSColumnNames;
@@ -98,8 +100,7 @@ public class EntityBasedAssociationAttribute
 	}
 
 	@Override
-	public FetchPlan determineFetchPlan(
-			LoadQueryInfluencers loadQueryInfluencers, PropertyPath propertyPath) {
+	public FetchPlan determineFetchPlan(LoadQueryInfluencers loadQueryInfluencers, PropertyPath propertyPath) {
 		final EntityPersister owningPersister = getSource().getEntityPersister();
 
 		FetchStyle style = Helper.determineFetchStyleByProfile(
@@ -110,7 +111,7 @@ public class EntityBasedAssociationAttribute
 		);
 		if ( style == null ) {
 			style = Helper.determineFetchStyleByMetadata(
-					( (OuterJoinLoadable) getSource().getEntityPersister() ).getFetchMode( attributeNumber() ),
+					((OuterJoinLoadable) getSource().getEntityPersister()).getFetchMode( attributeNumber() ),
 					getType(),
 					sessionFactory()
 			);
@@ -120,5 +121,10 @@ public class EntityBasedAssociationAttribute
 				Helper.determineFetchTiming( style, getType(), sessionFactory() ),
 				style
 		);
+	}
+
+	@Override
+	public CascadeStyle determineCascadeStyle() {
+		return getSource().getEntityPersister().getPropertyCascadeStyles()[attributeNumber()];
 	}
 }

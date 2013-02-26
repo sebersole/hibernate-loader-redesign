@@ -38,18 +38,47 @@ public interface ReturnVisitationStrategy {
 	public void finish();
 
 	/**
-	 * Notification that a new RootReturn branch is being started.
+	 * Notification that a new root return branch is being started.  Will be followed by calls to one of the following
+	 * based on the type of return:<ul>
+	 *     <li>{@link #handleScalarReturn}</li>
+	 *     <li>{@link #handleEntityReturn}</li>
+	 *     <li>{@link #handleCollectionReturn}</li>
+	 * </ul>
 	 *
-	 * @param rootReturn The RootReturn at the root of the branch.
+	 * @param rootReturn The root return at the root of the branch.
 	 */
 	public void startingRootReturn(Return rootReturn);
 
 	/**
-	 * Notification that we are finishing up processing a RootReturn branch
+	 * Notification that we are finishing up processing a root return branch
 	 *
 	 * @param rootReturn The RootReturn we are finishing up processing.
 	 */
 	public void finishingRootReturn(Return rootReturn);
+
+	/**
+	 * Notification that a scalar return is being processed.  Will be surrounded by calls to {@link #startingRootReturn}
+	 * and {@link #finishingRootReturn}
+	 *
+	 * @param scalarReturn The scalar return
+	 */
+	public void handleScalarReturn(ScalarReturn scalarReturn);
+
+	/**
+	 * Notification that a root entity return is being processed.  Will be surrounded by calls to
+	 * {@link #startingRootReturn} and {@link #finishingRootReturn}
+	 *
+	 * @param rootEntityReturn The root entity return
+	 */
+	public void handleEntityReturn(EntityReturn rootEntityReturn);
+
+	/**
+	 * Notification that a root collection return is being processed.  Will be surrounded by calls to
+	 * {@link #startingRootReturn} and {@link #finishingRootReturn}
+	 *
+	 * @param rootCollectionReturn The root collection return
+	 */
+	public void handleCollectionReturn(CollectionReturn rootCollectionReturn);
 
 	/**
 	 * Notification that we are about to start processing the fetches for the given fetch owner.
@@ -65,13 +94,45 @@ public interface ReturnVisitationStrategy {
 	 */
 	public void finishingFetches(FetchOwner fetchOwner);
 
-	public void handleScalarReturn(ScalarReturn scalarReturn);
+	/**
+	 * Notification we are starting the processing of an entity fetch
+	 *
+	 * @param entityFetch The entity fetch
+	 */
+	public void startingEntityFetch(EntityFetch entityFetch);
 
-	public void handleEntityReturn(EntityReturn rootEntityReturn);
+	/**
+	 * Notification that we are finishing up the processing of an entity fetch
+	 *
+	 * @param entityFetch The entity fetch
+	 */
+	public void finishingEntityFetch(EntityFetch entityFetch);
 
-	public void handleCollectionReturn(CollectionReturn rootCollectionReturn);
+	/**
+	 * Notification we are starting the processing of a collection fetch
+	 *
+	 * @param collectionFetch The collection fetch
+	 */
+	public void startingCollectionFetch(CollectionFetch collectionFetch);
 
-	public void handleEntityFetch(EntityFetch entityFetch);
+	/**
+	 * Notification that we are finishing up the processing of a collection fetch
+	 *
+	 * @param collectionFetch The collection fetch
+	 */
+	public void finishingCollectionFetch(CollectionFetch collectionFetch);
 
-	public void handleCollectionFetch(CollectionFetch collectionFetch);
+	/**
+	 * Notification we are starting the processing of a component fetch
+	 *
+	 * @param fetch The composite fetch
+	 */
+	public void startingCompositeFetch(CompositeFetch fetch);
+
+	/**
+	 * Notification that we are finishing up the processing of a composite fetch
+	 *
+	 * @param fetch The composite fetch
+	 */
+	public void finishingCompositeFetch(CompositeFetch fetch);
 }

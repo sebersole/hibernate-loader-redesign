@@ -91,12 +91,19 @@ public class ReturnVisitor {
 
 	private void visitFetch(Fetch fetch) {
 		if ( EntityFetch.class.isInstance( fetch ) ) {
-			strategy.handleEntityFetch( (EntityFetch) fetch );
+			strategy.startingEntityFetch( (EntityFetch) fetch );
 			visitFetches( fetch );
+			strategy.finishingEntityFetch( (EntityFetch) fetch );
 		}
 		else if ( CollectionFetch.class.isInstance( fetch ) ) {
-			strategy.handleCollectionFetch( (CollectionFetch) fetch );
+			strategy.startingCollectionFetch( (CollectionFetch) fetch );
 			visitFetches( fetch );
+			strategy.finishingCollectionFetch( (CollectionFetch) fetch );
+		}
+		else if ( CompositeFetch.class.isInstance( fetch ) ) {
+			strategy.startingCompositeFetch( (CompositeFetch) fetch );
+			visitFetches( fetch );
+			strategy.finishingCompositeFetch( (CompositeFetch) fetch );
 		}
 		else {
 			throw new IllegalStateException(

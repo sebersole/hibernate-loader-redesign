@@ -1,5 +1,5 @@
 /*
- * Hibernate, Relational Persistence for Idiomatic Java
+ * jDocBook, processing of DocBook sources
  *
  * Copyright (c) 2013, Red Hat Inc. or third-party contributors as
  * indicated by the @author tags or express copyright attribution
@@ -21,26 +21,31 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.loader.walking.spi;
+package org.hibernate.loader.plan.spi;
 
-import org.hibernate.engine.spi.CascadeStyle;
-import org.hibernate.engine.spi.LoadQueryInfluencers;
+import org.hibernate.LockMode;
+import org.hibernate.engine.FetchStyle;
+import org.hibernate.engine.FetchTiming;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.loader.FetchPlan;
-import org.hibernate.loader.PropertyPath;
+import org.hibernate.persister.entity.EntityPersister;
 
 /**
  * @author Steve Ebersole
  */
-public interface AssociationAttributeDefinition extends AttributeDefinition {
-	public AssociationKey getAssociationKey();
+public class CompositeFetch extends AbstractFetch implements Fetch {
+	public static final FetchPlan FETCH_PLAN = new FetchPlan( FetchTiming.IMMEDIATE, FetchStyle.JOIN );
 
-	public boolean isCollection();
+	public CompositeFetch(
+			SessionFactoryImplementor sessionFactory,
+			String alias,
+			AbstractFetchOwner owner,
+			String ownerProperty) {
+		super( sessionFactory, alias, LockMode.NONE, owner, ownerProperty, FETCH_PLAN );
+	}
 
-	public EntityDefinition toEntityDefinition();
-
-	public CollectionDefinition toCollectionDefinition();
-
-	public FetchPlan determineFetchPlan(LoadQueryInfluencers loadQueryInfluencers, PropertyPath propertyPath);
-
-	public CascadeStyle determineCascadeStyle();
+	@Override
+	public EntityPersister retrieveFetchSourcePersister() {
+		return getOwner().retrieveFetchSourcePersister();
+	}
 }
