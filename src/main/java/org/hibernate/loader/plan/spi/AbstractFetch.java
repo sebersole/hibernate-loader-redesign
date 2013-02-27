@@ -28,6 +28,7 @@ import org.hibernate.LockMode;
 import org.hibernate.engine.FetchStyle;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.loader.FetchPlan;
+import org.hibernate.loader.PropertyPath;
 
 /**
  * @author Steve Ebersole
@@ -36,6 +37,8 @@ public abstract class AbstractFetch extends AbstractFetchOwner implements Fetch 
 	private final FetchOwner owner;
 	private final String ownerProperty;
 	private final FetchPlan fetchPlan;
+
+	private final PropertyPath propertyPath;
 
 	public AbstractFetch(
 			SessionFactoryImplementor factory,
@@ -50,6 +53,8 @@ public abstract class AbstractFetch extends AbstractFetchOwner implements Fetch 
 		this.fetchPlan = fetchPlan;
 
 		owner.addFetch( this );
+
+		this.propertyPath = owner.getPropertyPath().append( ownerProperty );
 	}
 
 	@Override
@@ -74,5 +79,10 @@ public abstract class AbstractFetch extends AbstractFetchOwner implements Fetch 
 				throw new HibernateException( "Cannot specify join fetch from owner that is a non-joined fetch" );
 			}
 		}
+	}
+
+	@Override
+	public PropertyPath getPropertyPath() {
+		return propertyPath;
 	}
 }

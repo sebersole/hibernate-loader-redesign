@@ -27,6 +27,7 @@ import org.hibernate.LockMode;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.loader.EntityAliases;
 import org.hibernate.loader.FetchPlan;
+import org.hibernate.loader.PropertyPath;
 import org.hibernate.persister.entity.EntityPersister;
 
 /**
@@ -37,6 +38,8 @@ public class EntityReturn extends AbstractFetchOwner implements Return, FetchOwn
 	private final String sqlTableAlias;
 
 	private final EntityPersister persister;
+
+	private final PropertyPath propertyPath = new PropertyPath(); // its a root
 
 	public EntityReturn(
 			SessionFactoryImplementor sessionFactory,
@@ -84,5 +87,10 @@ public class EntityReturn extends AbstractFetchOwner implements Return, FetchOwn
 	@Override
 	public EntityPersister retrieveFetchSourcePersister() {
 		return getEntityPersister();
+	}
+
+	@Override
+	public PropertyPath getPropertyPath() {
+		return propertyPath;
 	}
 }

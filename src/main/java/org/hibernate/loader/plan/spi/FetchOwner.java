@@ -24,6 +24,7 @@
 package org.hibernate.loader.plan.spi;
 
 import org.hibernate.loader.FetchPlan;
+import org.hibernate.loader.PropertyPath;
 import org.hibernate.persister.entity.EntityPersister;
 
 /**
@@ -57,4 +58,11 @@ public interface FetchOwner {
 	 * @return The EntityPersister, for property name resolution.
 	 */
 	public EntityPersister retrieveFetchSourcePersister();
+
+	/**
+	 * Get the property path to this fetch owner
+	 *
+	 * @return The property path
+	 */
+	public PropertyPath getPropertyPath();
 }

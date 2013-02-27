@@ -32,7 +32,7 @@ import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.loader.PropertyPath;
 import org.hibernate.loader.walking.impl.CollectionDefinitionImpl;
 import org.hibernate.loader.walking.impl.EntityDefinitionImpl;
-import org.hibernate.persister.collection.QueryableCollection;
+import org.hibernate.persister.collection.CollectionPersister;
 import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.type.Type;
 
@@ -55,7 +55,7 @@ public class MetadataDrivenAssociationVisitor {
 		}
 	}
 
-	public static void visitCollection(AssociationVisitationStrategy strategy, QueryableCollection persister) {
+	public static void visitCollection(AssociationVisitationStrategy strategy, CollectionPersister persister) {
 		strategy.start();
 		try {
 			new MetadataDrivenAssociationVisitor( strategy, persister.getFactory() )
@@ -157,14 +157,21 @@ public class MetadataDrivenAssociationVisitor {
 	}
 
 	private void visitCollectionDefinition(CollectionDefinition collectionDefinition) {
-		visitCollectionIndex( collectionDefinition.getIndexDefinition() );
+		strategy.startingCollection( collectionDefinition );
 
-		final CollectionElementDefinition elementDefinition = collectionDefinition.getElementDefinition();
-		if ( elementDefinition.getType().isComponentType() ) {
-			visitCompositeDefinition( elementDefinition.toCompositeDefinition() );
+		try {
+			visitCollectionIndex( collectionDefinition.getIndexDefinition() );
+
+			final CollectionElementDefinition elementDefinition = collectionDefinition.getElementDefinition();
+			if ( elementDefinition.getType().isComponentType() ) {
+				visitCompositeDefinition( elementDefinition.toCompositeDefinition() );
+			}
+			else {
+				visitEntityDefinition( elementDefinition.toEntityDefinition() );
+			}
 		}
-		else {
-			visitEntityDefinition( elementDefinition.toEntityDefinition() );
+		finally {
+			strategy.finishingCollection( collectionDefinition );
 		}
 	}
 

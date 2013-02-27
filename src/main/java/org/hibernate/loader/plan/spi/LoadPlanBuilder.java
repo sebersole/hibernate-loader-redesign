@@ -24,14 +24,41 @@
 package org.hibernate.loader.plan.spi;
 
 import org.hibernate.loader.walking.spi.MetadataDrivenAssociationVisitor;
+import org.hibernate.persister.collection.CollectionPersister;
 import org.hibernate.persister.entity.EntityPersister;
 
 /**
+ * Coordinates building of a {@link LoadPlan} between the {@link MetadataDrivenAssociationVisitor} and
+ * {@link LoadPlanBuilderStrategy}
+ *
  * @author Steve Ebersole
  */
 public class LoadPlanBuilder {
-	public static LoadPlan buildEntityLoadPlan(LoadPlanBuilderStrategy strategy, EntityPersister persister) {
+	/**
+	 * Coordinates building a LoadPlan that defines just a single root entity return (may have fetches).
+	 * <p/>
+	 * Typically this includes building load plans for entity loading or cascade loading.
+	 *
+	 * @param strategy The strategy defining the load plan shaping
+	 * @param persister The persister for the entity forming the root of the load plan.
+	 *
+	 * @return The built load plan.
+	 */
+	public static LoadPlan buildRootEntityLoadPlan(LoadPlanBuilderStrategy strategy, EntityPersister persister) {
 		MetadataDrivenAssociationVisitor.visitEntity( strategy, persister );
+		return strategy.buildLoadPlan();
+	}
+
+	/**
+	 * Coordinates building a LoadPlan that defines just a single root collection return (may have fetches).
+	 *
+	 * @param strategy The strategy defining the load plan shaping
+	 * @param persister The persister for the collection forming the root of the load plan.
+	 *
+	 * @return The built load plan.
+	 */
+	public static LoadPlan buildRootCollectionLoadPlan(LoadPlanBuilderStrategy strategy, CollectionPersister persister) {
+		MetadataDrivenAssociationVisitor.visitCollection( strategy, persister );
 		return strategy.buildLoadPlan();
 	}
 }

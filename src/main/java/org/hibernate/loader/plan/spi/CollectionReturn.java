@@ -28,6 +28,7 @@ import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.loader.CollectionAliases;
 import org.hibernate.loader.EntityAliases;
 import org.hibernate.loader.FetchPlan;
+import org.hibernate.loader.PropertyPath;
 import org.hibernate.persister.collection.CollectionPersister;
 import org.hibernate.persister.collection.QueryableCollection;
 import org.hibernate.persister.entity.EntityPersister;
@@ -42,6 +43,8 @@ public class CollectionReturn extends AbstractFetchOwner implements Return, Fetc
 	private final EntityAliases elementEntityAliases;
 
 	private final CollectionPersister persister;
+
+	private final PropertyPath propertyPath = new PropertyPath(); // its a root
 
 	public CollectionReturn(
 			SessionFactoryImplementor sessionFactory,
@@ -101,5 +104,10 @@ public class CollectionReturn extends AbstractFetchOwner implements Return, Fetc
 	@Override
 	public EntityPersister retrieveFetchSourcePersister() {
 		return ( (QueryableCollection) persister ).getElementPersister();
+	}
+
+	@Override
+	public PropertyPath getPropertyPath() {
+		return propertyPath;
 	}
 }

@@ -25,7 +25,6 @@ package org.hibernate.loader.plan.spi;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -34,8 +33,9 @@ import java.util.List;
 
 import org.hibernate.engine.spi.CascadingActions;
 import org.hibernate.engine.spi.LoadQueryInfluencers;
-import org.hibernate.loader.plan.impl.CascadeBasedLoadPlanBuilderStrategy;
-import org.hibernate.loader.plan.impl.RootEntityLoadPlanBuilderStrategy;
+import org.hibernate.loader.plan.impl.CascadeLoadPlanBuilderStrategy;
+import org.hibernate.loader.plan.impl.SingleRootReturnLoadPlanBuilderStrategy;
+import org.hibernate.persister.collection.CollectionPersister;
 import org.hibernate.persister.entity.EntityPersister;
 
 import org.junit.Test;
@@ -59,13 +59,13 @@ public class LoadPlanBuilderTest extends BaseCoreFunctionalTestCase {
 	@Test
 	public void testSimpleBuild() {
 		EntityPersister ep = (EntityPersister) sessionFactory().getClassMetadata(Message.class);
-		RootEntityLoadPlanBuilderStrategy strategy = new RootEntityLoadPlanBuilderStrategy(
+		SingleRootReturnLoadPlanBuilderStrategy strategy = new SingleRootReturnLoadPlanBuilderStrategy(
 				sessionFactory(),
 				LoadQueryInfluencers.NONE,
 				"abc",
 				0
 		);
-		LoadPlan plan = LoadPlanBuilder.buildEntityLoadPlan( strategy, ep );
+		LoadPlan plan = LoadPlanBuilder.buildRootEntityLoadPlan( strategy, ep );
 		assertFalse( plan.hasAnyScalarReturns() );
 		assertEquals( 1, plan.getReturns().size() );
 		Return rtn = plan.getReturns().get( 0 );
@@ -82,14 +82,14 @@ public class LoadPlanBuilderTest extends BaseCoreFunctionalTestCase {
 	@Test
 	public void testCascadeBasedBuild() {
 		EntityPersister ep = (EntityPersister) sessionFactory().getClassMetadata(Message.class);
-		CascadeBasedLoadPlanBuilderStrategy strategy = new CascadeBasedLoadPlanBuilderStrategy(
+		CascadeLoadPlanBuilderStrategy strategy = new CascadeLoadPlanBuilderStrategy(
 				CascadingActions.MERGE,
 				sessionFactory(),
 				LoadQueryInfluencers.NONE,
 				"abc",
 				0
 		);
-		LoadPlan plan = LoadPlanBuilder.buildEntityLoadPlan( strategy, ep );
+		LoadPlan plan = LoadPlanBuilder.buildRootEntityLoadPlan( strategy, ep );
 		assertFalse( plan.hasAnyScalarReturns() );
 		assertEquals( 1, plan.getReturns().size() );
 		Return rtn = plan.getReturns().get( 0 );
@@ -98,6 +98,30 @@ public class LoadPlanBuilderTest extends BaseCoreFunctionalTestCase {
 		assertNotNull( entityReturn.getFetches() );
 		assertEquals( 1, entityReturn.getFetches().length );
 		Fetch fetch = entityReturn.getFetches()[0];
+		EntityFetch entityFetch = ExtraAssertions.assertTyping( EntityFetch.class, fetch );
+		assertNotNull( entityFetch.getFetches() );
+		assertEquals( 0, entityFetch.getFetches().length );
+	}
+
+	@Test
+	public void testCollectionInitializerCase() {
+		CollectionPersister cp = sessionFactory().getCollectionPersister( Poster.class.getName() + ".messages" );
+		SingleRootReturnLoadPlanBuilderStrategy strategy = new SingleRootReturnLoadPlanBuilderStrategy(
+				sessionFactory(),
+				LoadQueryInfluencers.NONE,
+				"abc",
+				0
+		);
+		LoadPlan plan = LoadPlanBuilder.buildRootCollectionLoadPlan( strategy, cp );
+		assertFalse( plan.hasAnyScalarReturns() );
+		assertEquals( 1, plan.getReturns().size() );
+		Return rtn = plan.getReturns().get( 0 );
+		CollectionReturn collectionReturn = ExtraAssertions.assertTyping( CollectionReturn.class, rtn );
+		assertEquals( "abc", collectionReturn.getAlias() );
+
+		assertNotNull( collectionReturn.getFetches() );
+		assertEquals( 1, collectionReturn.getFetches().length ); // the collection elements are fetched
+		Fetch fetch = collectionReturn.getFetches()[0];
 		EntityFetch entityFetch = ExtraAssertions.assertTyping( EntityFetch.class, fetch );
 		assertNotNull( entityFetch.getFetches() );
 		assertEquals( 0, entityFetch.getFetches().length );

@@ -32,15 +32,18 @@ import org.hibernate.loader.FetchPlan;
 import org.hibernate.loader.walking.spi.AssociationAttributeDefinition;
 
 /**
+ * A LoadPlan building strategy for cascade processing; meaning, it builds the LoadPlan for loading related to
+ * cascading a particular action across associations
+ *
  * @author Steve Ebersole
  */
-public class CascadeBasedLoadPlanBuilderStrategy extends RootEntityLoadPlanBuilderStrategy {
+public class CascadeLoadPlanBuilderStrategy extends SingleRootReturnLoadPlanBuilderStrategy {
 	private static final FetchPlan EAGER = new FetchPlan( FetchTiming.IMMEDIATE, FetchStyle.JOIN );
 	private static final FetchPlan DELAYED = new FetchPlan( FetchTiming.DELAYED, FetchStyle.SELECT );
 
 	private final CascadingAction cascadeActionToMatch;
 
-	public CascadeBasedLoadPlanBuilderStrategy(
+	public CascadeLoadPlanBuilderStrategy(
 			CascadingAction cascadeActionToMatch,
 			SessionFactoryImplementor sessionFactory,
 			LoadQueryInfluencers loadQueryInfluencers,

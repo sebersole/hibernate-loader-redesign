@@ -24,6 +24,7 @@
 package org.hibernate.loader.plan.spi;
 
 import org.hibernate.loader.FetchPlan;
+import org.hibernate.loader.PropertyPath;
 
 /**
  * Contract for associations that are being fetched.
@@ -48,4 +49,11 @@ public interface Fetch extends FetchOwner {
 	public String getOwnerPropertyName();
 
 	public FetchPlan getFetchPlan();
+
+	/**
+	 * Get the property path to this fetch
+	 *
+	 * @return The property path
+	 */
+	public PropertyPath getPropertyPath();
 }

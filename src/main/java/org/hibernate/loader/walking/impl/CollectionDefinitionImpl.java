@@ -41,8 +41,8 @@ import org.hibernate.type.Type;
 public class CollectionDefinitionImpl implements CollectionDefinition {
 	private final QueryableCollection persister;
 
-	public CollectionDefinitionImpl(QueryableCollection persister) {
-		this.persister = persister;
+	public CollectionDefinitionImpl(CollectionPersister persister) {
+		this.persister = (QueryableCollection) persister;
 	}
 
 	@Override
