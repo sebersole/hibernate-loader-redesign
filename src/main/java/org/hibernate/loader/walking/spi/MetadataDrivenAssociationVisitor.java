@@ -111,7 +111,7 @@ public class MetadataDrivenAssociationVisitor {
 		final PropertyPath subPath = currentPropertyPath.append( attributeDefinition.getName() );
 		log.debug( "Visiting attribute path : " + subPath.getFullPath() );
 
-		final boolean continueWalk = strategy.handleAttribute( attributeDefinition );
+		final boolean continueWalk = strategy.startingAttribute( attributeDefinition );
 		if ( continueWalk ) {
 			final PropertyPath old = currentPropertyPath;
 			currentPropertyPath = subPath;

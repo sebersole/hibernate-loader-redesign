@@ -23,8 +23,7 @@
  */
 package org.hibernate.loader.plan.impl;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayDeque;
 
 import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
@@ -42,6 +41,7 @@ import org.hibernate.loader.PropertyPath;
 import org.hibernate.loader.plan.spi.AbstractFetchOwner;
 import org.hibernate.loader.plan.spi.CollectionFetch;
 import org.hibernate.loader.plan.spi.CollectionReturn;
+import org.hibernate.loader.plan.spi.CompositeFetch;
 import org.hibernate.loader.plan.spi.EntityFetch;
 import org.hibernate.loader.plan.spi.EntityReturn;
 import org.hibernate.loader.plan.spi.Fetch;
@@ -62,6 +62,12 @@ import org.hibernate.type.Type;
 /**
  * LoadPlanBuilderStrategy implementation used for processing RootEntity LoadPlan building.
  *
+ * Really this is a single-root LoadPlan building strategy for building LoadPlans for:<ul>
+ *     <li>entity load plans</li>
+ *     <li>cascade load plans</li>
+ *     <li>collection initializer plans</li>
+ * </ul>
+ *
  * @author Steve Ebersole
  */
 public class RootEntityLoadPlanBuilderStrategy implements LoadPlanBuilderStrategy {
@@ -70,10 +76,12 @@ public class RootEntityLoadPlanBuilderStrategy implements LoadPlanBuilderStrateg
 	private final String rootAlias;
 	private int currentSuffixBase;
 
-	private final List<Return> returns = new ArrayList<Return>();
+	private Return rootReturn;
 
-	private int currentDepth = 0;
-	private Object previousReturnOrFetch;
+	private ArrayDeque<FetchOwner> fetchOwnerStack = new ArrayDeque<FetchOwner>();
+//
+//	private int currentDepth = 0;
+//	private Object previousReturnOrFetch;
 
 	private PropertyPath propertyPath = new PropertyPath( "" );
 
@@ -100,13 +108,13 @@ public class RootEntityLoadPlanBuilderStrategy implements LoadPlanBuilderStrateg
 
 	@Override
 	public void startingEntity(EntityDefinition entityDefinition) {
-		if ( previousReturnOrFetch == null ) {
+		if ( rootReturn == null ) {
 			// this is a root...
 			final EntityReturn entityReturn = buildRootEntityReturn( entityDefinition );
-			returns.add( entityReturn );
-			previousReturnOrFetch = entityReturn;
+			rootReturn = entityReturn;
+			fetchOwnerStack.push( entityReturn );
 		}
-		// otherwise this call should represent a fetch which should have been handled in #handleAttribute
+		// otherwise this call should represent a fetch which should have been handled in #startingAttribute
 	}
 
 	@Override
@@ -116,11 +124,11 @@ public class RootEntityLoadPlanBuilderStrategy implements LoadPlanBuilderStrateg
 
 	@Override
 	public void startingCollection(CollectionDefinition collectionDefinition) {
-		if ( previousReturnOrFetch == null ) {
+		if ( rootReturn == null ) {
 			// this is a root...
-			final CollectionReturn collectionReturn = buildRootCollectionReturn( collectionDefinition );;
-			returns.add( collectionReturn );
-			previousReturnOrFetch = collectionReturn;
+			final CollectionReturn collectionReturn = buildRootCollectionReturn( collectionDefinition );
+			rootReturn = collectionReturn;
+			fetchOwnerStack.push( collectionReturn );
 		}
 	}
 
@@ -131,7 +139,7 @@ public class RootEntityLoadPlanBuilderStrategy implements LoadPlanBuilderStrateg
 
 	@Override
 	public void startingComposite(CompositeDefinition compositeDefinition) {
-		if ( previousReturnOrFetch == null ) {
+		if ( rootReturn == null ) {
 			throw new HibernateException( "A component cannot be the root of a walk nor a graph" );
 		}
 	}
@@ -142,16 +150,23 @@ public class RootEntityLoadPlanBuilderStrategy implements LoadPlanBuilderStrateg
 	}
 
 	@Override
-	public boolean handleAttribute(AttributeDefinition attributeDefinition) {
-		currentDepth++;
-
+	public boolean startingAttribute(AttributeDefinition attributeDefinition) {
 		final Type attributeType = attributeDefinition.getType();
 
 		final boolean isComponentType = attributeType.isComponentType();
 		final boolean isBasicType = ! ( isComponentType || attributeType.isAssociationType() );
 
-		if ( isComponentType || isBasicType ) {
+		if ( isBasicType ) {
 			return true;
+		}
+		else if ( isComponentType ) {
+			propertyPath = propertyPath.append( attributeDefinition.getName() );
+			try {
+				return handleCompositeAttribute( (CompositeDefinition) attributeDefinition );
+			}
+			finally {
+				propertyPath = propertyPath.getParent();
+			}
 		}
 		else {
 			propertyPath = propertyPath.append( attributeDefinition.getName() );
@@ -164,43 +179,45 @@ public class RootEntityLoadPlanBuilderStrategy implements LoadPlanBuilderStrateg
 		}
 	}
 
+
 	@Override
 	public void finishingAttribute(AttributeDefinition attributeDefinition) {
-		if ( previousFetchOwner != null ) {
-			previousReturnOrFetch = previousFetchOwner;
-			previousFetchOwner = null;
-		}
+		final Type attributeType = attributeDefinition.getType();
 
-		currentDepth--;
+		final boolean isComponentType = attributeType.isComponentType();
+		final boolean isBasicType = ! ( isComponentType || attributeType.isAssociationType() );
+
+		if ( ! isBasicType ) {
+			fetchOwnerStack.removeLast();
+		}
 	}
 
-	private FetchOwner previousFetchOwner;
+	protected boolean handleCompositeAttribute(CompositeDefinition attributeDefinition) {
+		final FetchOwner fetchOwner = fetchOwnerStack.peekLast();
+		final CompositeFetch fetch = buildCompositeFetch( fetchOwner, attributeDefinition );
+		fetchOwnerStack.addLast( fetch );
+		return true;
+	}
 
-	private boolean handleAssociationAttribute(AssociationAttributeDefinition attributeDefinition) {
+	protected boolean handleAssociationAttribute(AssociationAttributeDefinition attributeDefinition) {
 		final FetchPlan fetchPlan = determineFetchPlan( attributeDefinition );
-		if ( fetchPlan.getTiming() == FetchTiming.IMMEDIATE ) {
-			boolean continueWithGraph = true;
-			if ( ! FetchOwner.class.isInstance( previousReturnOrFetch ) ) {
-				throw new HibernateException( "Cannot build fetch from non-fetch-owner" );
-			}
-			final FetchOwner fetchOwner = (FetchOwner) previousReturnOrFetch;
-			fetchOwner.validateFetchPlan( fetchPlan );
-			previousFetchOwner = fetchOwner;
-
-			final Fetch associationFetch;
-			if ( attributeDefinition.isCollection() ) {
-				associationFetch = buildCollectionFetch( fetchOwner, attributeDefinition, fetchPlan );
-			}
-			else {
-				associationFetch = buildEntityFetch( fetchOwner, attributeDefinition, fetchPlan );
-			}
-			previousReturnOrFetch = associationFetch;
-
-			return continueWithGraph;
-		}
-		else {
+		if ( fetchPlan.getTiming() != FetchTiming.IMMEDIATE ) {
 			return false;
 		}
+
+		final FetchOwner fetchOwner = fetchOwnerStack.peekLast();
+		fetchOwner.validateFetchPlan( fetchPlan );
+
+		final Fetch associationFetch;
+		if ( attributeDefinition.isCollection() ) {
+			associationFetch = buildCollectionFetch( fetchOwner, attributeDefinition, fetchPlan );
+		}
+		else {
+			associationFetch = buildEntityFetch( fetchOwner, attributeDefinition, fetchPlan );
+		}
+		fetchOwnerStack.addLast( associationFetch );
+
+		return true;
 	}
 
 	protected FetchPlan determineFetchPlan(AssociationAttributeDefinition attributeDefinition) {
@@ -215,7 +232,7 @@ public class RootEntityLoadPlanBuilderStrategy implements LoadPlanBuilderStrateg
 	private FetchPlan adjustJoinFetchIfNeeded(
 			AssociationAttributeDefinition attributeDefinition,
 			FetchPlan fetchPlan) {
-		if ( currentDepth > sessionFactory.getSettings().getMaximumFetchDepth() ) {
+		if ( currentDepth() > sessionFactory.getSettings().getMaximumFetchDepth() ) {
 			return new FetchPlan( fetchPlan.getTiming(), FetchStyle.SELECT );
 		}
 
@@ -227,13 +244,17 @@ public class RootEntityLoadPlanBuilderStrategy implements LoadPlanBuilderStrateg
 		return fetchPlan;
 	}
 
+	protected int currentDepth() {
+		return fetchOwnerStack.size();
+	}
+
 	protected boolean isTooManyCollections() {
 		return false;
 	}
 
 	@Override
 	public LoadPlan buildLoadPlan() {
-		return new LoadPlanImpl( false, returns );
+		return new LoadPlanImpl( false, rootReturn );
 	}
 
 	protected EntityReturn buildRootEntityReturn(EntityDefinition entityDefinition) {
@@ -243,7 +264,7 @@ public class RootEntityLoadPlanBuilderStrategy implements LoadPlanBuilderStrateg
 				rootAlias,
 				LockMode.NONE, // todo : for now
 				entityName,
-				StringHelper.generateAlias( StringHelper.unqualifyEntityName( entityName ), currentDepth ),
+				StringHelper.generateAlias( StringHelper.unqualifyEntityName( entityName ), currentDepth() ),
 				new DefaultEntityAliases(
 						(Loadable) entityDefinition.getEntityPersister(),
 						Integer.toString( currentSuffixBase++ ) + '_'
@@ -330,11 +351,20 @@ public class RootEntityLoadPlanBuilderStrategy implements LoadPlanBuilderStrateg
 				(AbstractFetchOwner) fetchOwner,
 				attributeDefinition.getName(),
 				fetchPlan,
-				StringHelper.generateAlias( entityDefinition.getEntityPersister().getEntityName(), currentDepth ),
+				StringHelper.generateAlias( entityDefinition.getEntityPersister().getEntityName(), currentDepth() ),
 				new DefaultEntityAliases(
 						(Loadable) entityDefinition.getEntityPersister(),
 						Integer.toString( currentSuffixBase++ ) + '_'
 				)
+		);
+	}
+
+	private CompositeFetch buildCompositeFetch(FetchOwner fetchOwner, CompositeDefinition attributeDefinition) {
+		return new CompositeFetch(
+				sessionFactory,
+				createImplicitAlias(),
+				(AbstractFetchOwner) fetchOwner,
+				attributeDefinition.getName()
 		);
 	}
 

@@ -46,6 +46,6 @@ public interface AssociationVisitationStrategy {
 	public void startingComposite(CompositeDefinition compositeDefinition);
 	public void finishingComposite(CompositeDefinition compositeDefinition);
 
-	public boolean handleAttribute(AttributeDefinition attributeDefinition);
+	public boolean startingAttribute(AttributeDefinition attributeDefinition);
 	public void finishingAttribute(AttributeDefinition attributeDefinition);
 }

@@ -137,7 +137,7 @@ public class BasicWalkingTest extends BaseCoreFunctionalTestCase {
 					}
 
 					@Override
-					public boolean handleAttribute(AttributeDefinition attributeDefinition) {
+					public boolean startingAttribute(AttributeDefinition attributeDefinition) {
 						System.out.println(
 								String.format(
 										"%s Handling attribute (%s)",

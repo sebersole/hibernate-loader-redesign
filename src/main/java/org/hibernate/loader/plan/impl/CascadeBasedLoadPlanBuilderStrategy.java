@@ -34,13 +34,13 @@ import org.hibernate.loader.walking.spi.AssociationAttributeDefinition;
 /**
  * @author Steve Ebersole
  */
-public class CascadeBasedEntityLoadPlanBuilder extends RootEntityLoadPlanBuilderStrategy {
+public class CascadeBasedLoadPlanBuilderStrategy extends RootEntityLoadPlanBuilderStrategy {
 	private static final FetchPlan EAGER = new FetchPlan( FetchTiming.IMMEDIATE, FetchStyle.JOIN );
 	private static final FetchPlan DELAYED = new FetchPlan( FetchTiming.DELAYED, FetchStyle.SELECT );
 
 	private final CascadingAction cascadeActionToMatch;
 
-	public CascadeBasedEntityLoadPlanBuilder(
+	public CascadeBasedLoadPlanBuilderStrategy(
 			CascadingAction cascadeActionToMatch,
 			SessionFactoryImplementor sessionFactory,
 			LoadQueryInfluencers loadQueryInfluencers,

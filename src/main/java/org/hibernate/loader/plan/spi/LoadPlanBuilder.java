@@ -23,9 +23,6 @@
  */
 package org.hibernate.loader.plan.spi;
 
-import org.hibernate.engine.spi.LoadQueryInfluencers;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.loader.plan.impl.RootEntityLoadPlanBuilderStrategy;
 import org.hibernate.loader.walking.spi.MetadataDrivenAssociationVisitor;
 import org.hibernate.persister.entity.EntityPersister;
 
@@ -33,25 +30,8 @@ import org.hibernate.persister.entity.EntityPersister;
  * @author Steve Ebersole
  */
 public class LoadPlanBuilder {
-	private final SessionFactoryImplementor sessionFactory;
-
-	public LoadPlanBuilder(SessionFactoryImplementor sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
-
 	public static LoadPlan buildEntityLoadPlan(LoadPlanBuilderStrategy strategy, EntityPersister persister) {
 		MetadataDrivenAssociationVisitor.visitEntity( strategy, persister );
 		return strategy.buildLoadPlan();
-	}
-
-	public LoadPlan buildEntityLoadPlan(
-			LoadQueryInfluencers loadQueryInfluencers,
-			EntityPersister persister,
-			String alias,
-			int suffixSeed) {
-		return buildEntityLoadPlan(
-				new RootEntityLoadPlanBuilderStrategy( sessionFactory, loadQueryInfluencers, alias, suffixSeed ),
-				persister
-		);
 	}
 }

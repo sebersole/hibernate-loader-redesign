@@ -23,6 +23,7 @@
  */
 package org.hibernate.loader.plan.impl;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.hibernate.loader.plan.spi.LoadPlan;
@@ -38,9 +39,12 @@ public class LoadPlanImpl implements LoadPlan {
 	private final List<Return> returns;
 
 	public LoadPlanImpl(boolean hasScalars, List<Return> returns) {
-
 		this.hasScalars = hasScalars;
 		this.returns = returns;
+	}
+
+	public LoadPlanImpl(boolean hasScalars, Return rootReturn) {
+		this( hasScalars, Collections.singletonList( rootReturn ) );
 	}
 
 	@Override
