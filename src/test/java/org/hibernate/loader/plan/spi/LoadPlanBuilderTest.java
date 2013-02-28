@@ -31,12 +31,14 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import java.util.List;
 
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.engine.spi.CascadingActions;
 import org.hibernate.engine.spi.LoadQueryInfluencers;
 import org.hibernate.loader.plan.impl.CascadeLoadPlanBuilderStrategy;
 import org.hibernate.loader.plan.impl.SingleRootReturnLoadPlanBuilderStrategy;
 import org.hibernate.persister.collection.CollectionPersister;
 import org.hibernate.persister.entity.EntityPersister;
+import org.hibernate.persister.spi.PersisterClassResolver;
 
 import org.junit.Test;
 
@@ -51,6 +53,12 @@ import static org.junit.Assert.assertNotNull;
  * @author Steve Ebersole
  */
 public class LoadPlanBuilderTest extends BaseCoreFunctionalTestCase {
+	@Override
+	protected void prepareBasicRegistryBuilder(StandardServiceRegistryBuilder serviceRegistryBuilder) {
+		super.prepareBasicRegistryBuilder( serviceRegistryBuilder );
+		serviceRegistryBuilder.addService( PersisterClassResolver.class, new CustomPersisterClassResolver() );
+	}
+
 	@Override
 	protected Class<?>[] getAnnotatedClasses() {
 		return new Class[] { Message.class, Poster.class };

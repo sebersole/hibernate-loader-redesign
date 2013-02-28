@@ -88,7 +88,10 @@ public class EntityBasedAssociationAttribute
 		if ( isCollection() ) {
 			throw new IllegalStateException( "Cannot treat collection-valued attribute as entity type" );
 		}
-		return new EntityDefinitionImpl( (EntityPersister) getJoinable() );
+		final EntityPersister joinable = (EntityPersister) getJoinable();
+		return EntityDefinition.class.isInstance( joinable )
+				? (EntityDefinition) joinable
+				: new EntityDefinitionImpl( joinable );
 	}
 
 	@Override
@@ -96,7 +99,10 @@ public class EntityBasedAssociationAttribute
 		if ( ! isCollection() ) {
 			throw new IllegalStateException( "Cannot treat entity-valued attribute as collection type" );
 		}
-		return new CollectionDefinitionImpl( (QueryableCollection) getJoinable() );
+		final QueryableCollection joinable = (QueryableCollection) getJoinable();
+		return CollectionDefinition.class.isInstance( joinable )
+				? (CollectionDefinition) joinable
+				: new CollectionDefinitionImpl( joinable );
 	}
 
 	@Override

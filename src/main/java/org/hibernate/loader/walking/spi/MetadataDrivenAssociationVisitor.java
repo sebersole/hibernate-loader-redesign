@@ -47,8 +47,11 @@ public class MetadataDrivenAssociationVisitor {
 	public static void visitEntity(AssociationVisitationStrategy strategy, EntityPersister persister) {
 		strategy.start();
 		try {
+			final EntityDefinition entityDefinition = EntityDefinition.class.isInstance( persister )
+					? (EntityDefinition) persister
+					: new EntityDefinitionImpl( persister );
 			new MetadataDrivenAssociationVisitor( strategy, persister.getFactory() )
-					.visitEntityDefinition( new EntityDefinitionImpl( persister ));
+					.visitEntityDefinition( entityDefinition );
 		}
 		finally {
 			strategy.finish();
@@ -58,8 +61,11 @@ public class MetadataDrivenAssociationVisitor {
 	public static void visitCollection(AssociationVisitationStrategy strategy, CollectionPersister persister) {
 		strategy.start();
 		try {
+			final CollectionDefinition collectionDefinition = CollectionDefinition.class.isInstance( persister )
+					? (CollectionDefinition) persister
+					: new CollectionDefinitionImpl( persister );
 			new MetadataDrivenAssociationVisitor( strategy, persister.getFactory() )
-					.visitCollectionDefinition( new CollectionDefinitionImpl( persister ) );
+					.visitCollectionDefinition( collectionDefinition );
 		}
 		finally {
 			strategy.finish();
