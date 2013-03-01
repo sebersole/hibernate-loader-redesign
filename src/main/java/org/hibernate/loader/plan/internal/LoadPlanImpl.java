@@ -21,23 +21,39 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.persister.walking.impl;
+package org.hibernate.loader.plan.internal;
 
-import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.persister.walking.spi.EntityDefinition;
-import org.hibernate.persister.walking.spi.EntityDefinition;
-import org.hibernate.type.Type;
+import java.util.Collections;
+import java.util.List;
+
+import org.hibernate.loader.plan.spi.LoadPlan;
+import org.hibernate.loader.plan.spi.Return;
 
 /**
+ * Implementation of LoadPlan.
+ *
  * @author Steve Ebersole
  */
-public class EntityBasedBasicAttribute extends AbstractEntityBasedAttribute {
-	public EntityBasedBasicAttribute(
-			EntityDefinition entityDefinition,
-			SessionFactoryImplementor factory,
-			int attributeNumber,
-			String attributeName,
-			Type attributeType) {
-		super( entityDefinition, factory, attributeNumber, attributeName, attributeType );
+public class LoadPlanImpl implements LoadPlan {
+	private final boolean hasScalars;
+	private final List<Return> returns;
+
+	public LoadPlanImpl(boolean hasScalars, List<Return> returns) {
+		this.hasScalars = hasScalars;
+		this.returns = returns;
+	}
+
+	public LoadPlanImpl(boolean hasScalars, Return rootReturn) {
+		this( hasScalars, Collections.singletonList( rootReturn ) );
+	}
+
+	@Override
+	public boolean hasAnyScalarReturns() {
+		return hasScalars;
+	}
+
+	@Override
+	public List<Return> getReturns() {
+		return returns;
 	}
 }

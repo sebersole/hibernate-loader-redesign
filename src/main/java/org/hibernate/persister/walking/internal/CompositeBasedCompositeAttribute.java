@@ -21,28 +21,24 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.persister.walking.impl;
+package org.hibernate.persister.walking.internal;
 
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.persister.walking.spi.CompositeDefinition;
-import org.hibernate.persister.walking.spi.EntityDefinition;
-import org.hibernate.persister.walking.spi.CompositeDefinition;
-import org.hibernate.persister.walking.spi.EntityDefinition;
 import org.hibernate.type.CompositeType;
 
 /**
  * @author Steve Ebersole
  */
-public class EntityBasedCompositeAttribute
+public class CompositeBasedCompositeAttribute
 		extends AbstractCompositeDefinition
 		implements CompositeDefinition {
-
-	public EntityBasedCompositeAttribute(
-			EntityDefinition entityDefinition,
-			SessionFactoryImplementor factory,
+	public CompositeBasedCompositeAttribute(
+			CompositeDefinition source,
+			SessionFactoryImplementor sessionFactory,
 			int attributeNumber,
 			String attributeName,
 			CompositeType attributeType) {
-		super( entityDefinition, factory, attributeNumber, attributeName, attributeType );
+		super( source, sessionFactory, attributeNumber, attributeName, attributeType );
 	}
 }

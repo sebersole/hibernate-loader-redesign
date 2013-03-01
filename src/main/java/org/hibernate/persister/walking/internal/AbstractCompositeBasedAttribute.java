@@ -21,35 +21,37 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.persister.walking.impl;
+package org.hibernate.persister.walking.internal;
 
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.persister.walking.spi.AttributeDefinition;
-import org.hibernate.persister.walking.spi.AttributeSource;
-import org.hibernate.persister.walking.spi.AttributeSource;
 import org.hibernate.type.Type;
 
 /**
  * @author Steve Ebersole
  */
-public abstract class AbstractAttributeDefinition implements AttributeDefinition {
-	private final AttributeSource source;
+public abstract class AbstractCompositeBasedAttribute implements AttributeDefinition {
+	private final AbstractCompositeDefinition source;
 	private final SessionFactoryImplementor sessionFactory;
 	private final int attributeNumber;
 	private final String attributeName;
 	private final Type attributeType;
 
-	protected AbstractAttributeDefinition(
-			AttributeSource source,
+	private final int ownerAttributeNumber;
+
+	public AbstractCompositeBasedAttribute(
+			AbstractCompositeDefinition source,
 			SessionFactoryImplementor sessionFactory,
 			int attributeNumber,
 			String attributeName,
-			Type attributeType) {
+			Type attributeType,
+			int ownerAttributeNumber) {
 		this.source = source;
 		this.sessionFactory = sessionFactory;
 		this.attributeNumber = attributeNumber;
 		this.attributeName = attributeName;
 		this.attributeType = attributeType;
+		this.ownerAttributeNumber = ownerAttributeNumber;
 	}
 
 	@Override
@@ -62,21 +64,20 @@ public abstract class AbstractAttributeDefinition implements AttributeDefinition
 		return attributeType;
 	}
 
-	@Override
-	public AttributeSource getSource() {
-		return source;
-	}
-
-	protected SessionFactoryImplementor sessionFactory() {
-		return sessionFactory;
-	}
-
-	protected int attributeNumber() {
+	protected int getAttributeNumber() {
 		return attributeNumber;
 	}
 
+	protected int getOwnerAttributeNumber() {
+		return ownerAttributeNumber;
+	}
+
 	@Override
-	public String toString() {
-		return "AttributeDefinition(" + attributeName + ")";
+	public AbstractCompositeDefinition getSource() {
+		return source;
+	}
+
+	public SessionFactoryImplementor getSessionFactory() {
+		return sessionFactory;
 	}
 }

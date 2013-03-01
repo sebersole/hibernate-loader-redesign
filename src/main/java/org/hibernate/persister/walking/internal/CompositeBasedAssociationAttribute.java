@@ -21,7 +21,7 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.persister.walking.impl;
+package org.hibernate.persister.walking.internal;
 
 import org.hibernate.FetchMode;
 import org.hibernate.engine.FetchStyle;

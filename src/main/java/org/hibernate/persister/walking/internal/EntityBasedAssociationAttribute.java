@@ -1,4 +1,4 @@
-package org.hibernate.persister.walking.impl;
+package org.hibernate.persister.walking.internal;
 
 import org.hibernate.engine.FetchStyle;
 import org.hibernate.engine.spi.CascadeStyle;

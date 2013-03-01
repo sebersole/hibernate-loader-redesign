@@ -21,38 +21,34 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.persister.walking.impl;
+package org.hibernate.persister.walking.internal;
 
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.persister.walking.spi.AttributeDefinition;
-import org.hibernate.persister.walking.spi.AttributeDefinition;
+import org.hibernate.persister.walking.spi.AttributeSource;
 import org.hibernate.type.Type;
 
 /**
  * @author Steve Ebersole
  */
-public abstract class AbstractCompositeBasedAttribute implements AttributeDefinition {
-	private final AbstractCompositeDefinition source;
+public abstract class AbstractAttributeDefinition implements AttributeDefinition {
+	private final AttributeSource source;
 	private final SessionFactoryImplementor sessionFactory;
 	private final int attributeNumber;
 	private final String attributeName;
 	private final Type attributeType;
 
-	private final int ownerAttributeNumber;
-
-	public AbstractCompositeBasedAttribute(
-			AbstractCompositeDefinition source,
+	protected AbstractAttributeDefinition(
+			AttributeSource source,
 			SessionFactoryImplementor sessionFactory,
 			int attributeNumber,
 			String attributeName,
-			Type attributeType,
-			int ownerAttributeNumber) {
+			Type attributeType) {
 		this.source = source;
 		this.sessionFactory = sessionFactory;
 		this.attributeNumber = attributeNumber;
 		this.attributeName = attributeName;
 		this.attributeType = attributeType;
-		this.ownerAttributeNumber = ownerAttributeNumber;
 	}
 
 	@Override
@@ -65,20 +61,21 @@ public abstract class AbstractCompositeBasedAttribute implements AttributeDefini
 		return attributeType;
 	}
 
-	protected int getAttributeNumber() {
-		return attributeNumber;
-	}
-
-	protected int getOwnerAttributeNumber() {
-		return ownerAttributeNumber;
-	}
-
 	@Override
-	public AbstractCompositeDefinition getSource() {
+	public AttributeSource getSource() {
 		return source;
 	}
 
-	public SessionFactoryImplementor getSessionFactory() {
+	protected SessionFactoryImplementor sessionFactory() {
 		return sessionFactory;
+	}
+
+	protected int attributeNumber() {
+		return attributeNumber;
+	}
+
+	@Override
+	public String toString() {
+		return "AttributeDefinition(" + attributeName + ")";
 	}
 }
