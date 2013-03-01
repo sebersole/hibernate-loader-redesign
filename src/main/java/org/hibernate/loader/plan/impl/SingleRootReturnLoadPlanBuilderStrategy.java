@@ -33,7 +33,7 @@ import org.hibernate.internal.util.StringHelper;
 import org.hibernate.loader.CollectionAliases;
 import org.hibernate.loader.DefaultEntityAliases;
 import org.hibernate.loader.EntityAliases;
-import org.hibernate.loader.FetchPlan;
+import org.hibernate.engine.FetchStrategy;
 import org.hibernate.loader.GeneratedCollectionAliases;
 import org.hibernate.loader.PropertyPath;
 import org.hibernate.loader.plan.spi.AbstractFetchOwner;
@@ -47,10 +47,10 @@ import org.hibernate.loader.plan.spi.FetchOwner;
 import org.hibernate.loader.plan.spi.LoadPlan;
 import org.hibernate.loader.plan.spi.LoadPlanBuilderStrategy;
 import org.hibernate.loader.plan.spi.Return;
-import org.hibernate.loader.walking.spi.AssociationAttributeDefinition;
-import org.hibernate.loader.walking.spi.CollectionDefinition;
-import org.hibernate.loader.walking.spi.CompositeDefinition;
-import org.hibernate.loader.walking.spi.EntityDefinition;
+import org.hibernate.persister.walking.spi.AssociationAttributeDefinition;
+import org.hibernate.persister.walking.spi.CollectionDefinition;
+import org.hibernate.persister.walking.spi.CompositeDefinition;
+import org.hibernate.persister.walking.spi.EntityDefinition;
 import org.hibernate.persister.collection.CollectionPersister;
 import org.hibernate.persister.entity.Loadable;
 import org.hibernate.type.EntityType;
@@ -115,28 +115,28 @@ public class SingleRootReturnLoadPlanBuilderStrategy
 	}
 
 	@Override
-	protected FetchPlan determineFetchPlan(AssociationAttributeDefinition attributeDefinition) {
-		FetchPlan fetchPlan = attributeDefinition.determineFetchPlan( loadQueryInfluencers, propertyPath );
-		if ( fetchPlan.getTiming() == FetchTiming.IMMEDIATE && fetchPlan.getStyle() == FetchStyle.JOIN ) {
+	protected FetchStrategy determineFetchPlan(AssociationAttributeDefinition attributeDefinition) {
+		FetchStrategy fetchStrategy = attributeDefinition.determineFetchPlan( loadQueryInfluencers, propertyPath );
+		if ( fetchStrategy.getTiming() == FetchTiming.IMMEDIATE && fetchStrategy.getStyle() == FetchStyle.JOIN ) {
 			// see if we need to alter the join fetch to another form for any reason
-			fetchPlan = adjustJoinFetchIfNeeded( attributeDefinition, fetchPlan );
+			fetchStrategy = adjustJoinFetchIfNeeded( attributeDefinition, fetchStrategy );
 		}
-		return fetchPlan;
+		return fetchStrategy;
 	}
 
-	protected FetchPlan adjustJoinFetchIfNeeded(
+	protected FetchStrategy adjustJoinFetchIfNeeded(
 			AssociationAttributeDefinition attributeDefinition,
-			FetchPlan fetchPlan) {
+			FetchStrategy fetchStrategy) {
 		if ( currentDepth() > sessionFactory().getSettings().getMaximumFetchDepth() ) {
-			return new FetchPlan( fetchPlan.getTiming(), FetchStyle.SELECT );
+			return new FetchStrategy( fetchStrategy.getTiming(), FetchStyle.SELECT );
 		}
 
 		if ( attributeDefinition.getType().isCollectionType() && isTooManyCollections() ) {
 			// todo : have this revert to batch or subselect fetching once "sql gen redesign" is in place
-			return new FetchPlan( fetchPlan.getTiming(), FetchStyle.SELECT );
+			return new FetchStrategy( fetchStrategy.getTiming(), FetchStyle.SELECT );
 		}
 
-		return fetchPlan;
+		return fetchStrategy;
 	}
 
 	@Override
@@ -197,7 +197,7 @@ public class SingleRootReturnLoadPlanBuilderStrategy
 	protected CollectionFetch buildCollectionFetch(
 			FetchOwner fetchOwner,
 			AssociationAttributeDefinition attributeDefinition,
-			FetchPlan fetchPlan) {
+			FetchStrategy fetchStrategy) {
 		final CollectionDefinition collectionDefinition = attributeDefinition.toCollectionDefinition();
 		final CollectionAliases collectionAliases = new GeneratedCollectionAliases(
 				collectionDefinition.getCollectionPersister(),
@@ -221,7 +221,7 @@ public class SingleRootReturnLoadPlanBuilderStrategy
 				createImplicitAlias(),
 				LockMode.NONE, // todo : for now
 				(AbstractFetchOwner) fetchOwner,
-				fetchPlan,
+				fetchStrategy,
 				attributeDefinition.getName(),
 				collectionAliases,
 				elementAliases
@@ -232,7 +232,7 @@ public class SingleRootReturnLoadPlanBuilderStrategy
 	protected EntityFetch buildEntityFetch(
 			FetchOwner fetchOwner,
 			AssociationAttributeDefinition attributeDefinition,
-			FetchPlan fetchPlan) {
+			FetchStrategy fetchStrategy) {
 		final EntityDefinition entityDefinition = attributeDefinition.toEntityDefinition();
 
 		return new EntityFetch(
@@ -241,7 +241,7 @@ public class SingleRootReturnLoadPlanBuilderStrategy
 				LockMode.NONE, // todo : for now
 				(AbstractFetchOwner) fetchOwner,
 				attributeDefinition.getName(),
-				fetchPlan,
+				fetchStrategy,
 				StringHelper.generateAlias( entityDefinition.getEntityPersister().getEntityName(), currentDepth() ),
 				new DefaultEntityAliases(
 						(Loadable) entityDefinition.getEntityPersister(),

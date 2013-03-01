@@ -1,5 +1,5 @@
 /*
- * jDocBook, processing of DocBook sources
+ * Hibernate, Relational Persistence for Idiomatic Java
  *
  * Copyright (c) 2013, Red Hat Inc. or third-party contributors as
  * indicated by the @author tags or express copyright attribution
@@ -21,31 +21,33 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.loader.plan.spi;
+package org.hibernate.persister.walking.spi;
 
-import org.hibernate.LockMode;
-import org.hibernate.engine.FetchStyle;
-import org.hibernate.engine.FetchTiming;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.engine.FetchStrategy;
-import org.hibernate.persister.entity.EntityPersister;
+import java.util.Arrays;
 
 /**
- * @author Steve Ebersole
+ * Used to uniquely identify a foreign key, so that we don't join it more than once creating circularities.
+ * <p/>
+ * bit of a misnomer to call this an association attribute.  But this follows the legacy use of AssociationKey
+ * from old JoinWalkers to denote circular join detection
  */
-public class CompositeFetch extends AbstractFetch implements Fetch {
-	public static final FetchStrategy FETCH_PLAN = new FetchStrategy( FetchTiming.IMMEDIATE, FetchStyle.JOIN );
+public class AssociationKey {
+	private final String table;
+	private final String[] columns;
 
-	public CompositeFetch(
-			SessionFactoryImplementor sessionFactory,
-			String alias,
-			AbstractFetchOwner owner,
-			String ownerProperty) {
-		super( sessionFactory, alias, LockMode.NONE, owner, ownerProperty, FETCH_PLAN );
+	public AssociationKey(String table, String[] columns) {
+		this.table = table;
+		this.columns = columns;
 	}
 
 	@Override
-	public EntityPersister retrieveFetchSourcePersister() {
-		return getOwner().retrieveFetchSourcePersister();
+	public boolean equals(Object other) {
+		AssociationKey that = (AssociationKey) other;
+		return that.table.equals(table) && Arrays.equals( columns, that.columns );
+	}
+
+	@Override
+	public int hashCode() {
+		return table.hashCode(); //TODO: inefficient
 	}
 }

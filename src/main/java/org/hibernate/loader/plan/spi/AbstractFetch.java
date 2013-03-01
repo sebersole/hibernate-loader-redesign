@@ -27,7 +27,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
 import org.hibernate.engine.FetchStyle;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.loader.FetchPlan;
+import org.hibernate.engine.FetchStrategy;
 import org.hibernate.loader.PropertyPath;
 
 /**
@@ -36,7 +36,7 @@ import org.hibernate.loader.PropertyPath;
 public abstract class AbstractFetch extends AbstractFetchOwner implements Fetch {
 	private final FetchOwner owner;
 	private final String ownerProperty;
-	private final FetchPlan fetchPlan;
+	private final FetchStrategy fetchStrategy;
 
 	private final PropertyPath propertyPath;
 
@@ -46,11 +46,11 @@ public abstract class AbstractFetch extends AbstractFetchOwner implements Fetch 
 			LockMode lockMode,
 			AbstractFetchOwner owner,
 			String ownerProperty,
-			FetchPlan fetchPlan) {
+			FetchStrategy fetchStrategy) {
 		super( factory, alias, lockMode );
 		this.owner = owner;
 		this.ownerProperty = ownerProperty;
-		this.fetchPlan = fetchPlan;
+		this.fetchStrategy = fetchStrategy;
 
 		owner.addFetch( this );
 
@@ -68,14 +68,14 @@ public abstract class AbstractFetch extends AbstractFetchOwner implements Fetch 
 	}
 
 	@Override
-	public FetchPlan getFetchPlan() {
-		return fetchPlan;
+	public FetchStrategy getFetchStrategy() {
+		return fetchStrategy;
 	}
 
 	@Override
-	public void validateFetchPlan(FetchPlan fetchPlan) {
-		if ( fetchPlan.getStyle() == FetchStyle.JOIN ) {
-			if ( this.fetchPlan.getStyle() != FetchStyle.JOIN ) {
+	public void validateFetchPlan(FetchStrategy fetchStrategy) {
+		if ( fetchStrategy.getStyle() == FetchStyle.JOIN ) {
+			if ( this.fetchStrategy.getStyle() != FetchStyle.JOIN ) {
 				throw new HibernateException( "Cannot specify join fetch from owner that is a non-joined fetch" );
 			}
 		}

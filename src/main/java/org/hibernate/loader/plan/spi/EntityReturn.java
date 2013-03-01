@@ -26,7 +26,7 @@ package org.hibernate.loader.plan.spi;
 import org.hibernate.LockMode;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.loader.EntityAliases;
-import org.hibernate.loader.FetchPlan;
+import org.hibernate.engine.FetchStrategy;
 import org.hibernate.loader.PropertyPath;
 import org.hibernate.persister.entity.EntityPersister;
 
@@ -81,7 +81,7 @@ public class EntityReturn extends AbstractFetchOwner implements Return, FetchOwn
 	}
 
 	@Override
-	public void validateFetchPlan(FetchPlan fetchPlan) {
+	public void validateFetchPlan(FetchStrategy fetchStrategy) {
 	}
 
 	@Override

@@ -23,7 +23,7 @@
  */
 package org.hibernate.loader.plan.spi;
 
-import org.hibernate.loader.FetchPlan;
+import org.hibernate.engine.FetchStrategy;
 import org.hibernate.loader.PropertyPath;
 
 /**
@@ -48,7 +48,7 @@ public interface Fetch extends FetchOwner {
 	 */
 	public String getOwnerPropertyName();
 
-	public FetchPlan getFetchPlan();
+	public FetchStrategy getFetchStrategy();
 
 	/**
 	 * Get the property path to this fetch

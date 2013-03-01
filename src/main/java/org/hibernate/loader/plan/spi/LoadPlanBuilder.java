@@ -23,7 +23,7 @@
  */
 package org.hibernate.loader.plan.spi;
 
-import org.hibernate.loader.walking.spi.MetadataDrivenAssociationVisitor;
+import org.hibernate.persister.walking.spi.MetadataDrivenAssociationVisitor;
 import org.hibernate.persister.collection.CollectionPersister;
 import org.hibernate.persister.entity.EntityPersister;
 

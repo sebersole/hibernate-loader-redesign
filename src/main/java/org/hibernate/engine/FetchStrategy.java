@@ -21,31 +21,33 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.loader.plan.spi;
+package org.hibernate.engine;
 
-import org.hibernate.LockMode;
 import org.hibernate.engine.FetchStyle;
 import org.hibernate.engine.FetchTiming;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.engine.FetchStrategy;
-import org.hibernate.persister.entity.EntityPersister;
 
 /**
+ * Describes the strategy for fetching an association
+ * <p/>
+ * todo not really a fan of the name.  not sure a better name though.
+ * I'd almost rather see this be called the style, but then what to call FetchStyle?
+ *
  * @author Steve Ebersole
  */
-public class CompositeFetch extends AbstractFetch implements Fetch {
-	public static final FetchStrategy FETCH_PLAN = new FetchStrategy( FetchTiming.IMMEDIATE, FetchStyle.JOIN );
+public class FetchStrategy {
+	private final FetchTiming timing;
+	private final FetchStyle style;
 
-	public CompositeFetch(
-			SessionFactoryImplementor sessionFactory,
-			String alias,
-			AbstractFetchOwner owner,
-			String ownerProperty) {
-		super( sessionFactory, alias, LockMode.NONE, owner, ownerProperty, FETCH_PLAN );
+	public FetchStrategy(FetchTiming timing, FetchStyle style) {
+		this.timing = timing;
+		this.style = style;
 	}
 
-	@Override
-	public EntityPersister retrieveFetchSourcePersister() {
-		return getOwner().retrieveFetchSourcePersister();
+	public FetchTiming getTiming() {
+		return timing;
+	}
+
+	public FetchStyle getStyle() {
+		return style;
 	}
 }

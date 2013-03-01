@@ -23,7 +23,7 @@
  */
 package org.hibernate.loader.plan.spi;
 
-import org.hibernate.loader.walking.spi.AssociationVisitationStrategy;
+import org.hibernate.persister.walking.spi.AssociationVisitationStrategy;
 
 /**
  * Specialized {@link AssociationVisitationStrategy} implementation for building {@link LoadPlan} instances.

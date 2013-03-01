@@ -1,5 +1,5 @@
 /*
- * jDocBook, processing of DocBook sources
+ * Hibernate, Relational Persistence for Idiomatic Java
  *
  * Copyright (c) 2013, Red Hat Inc. or third-party contributors as
  * indicated by the @author tags or express copyright attribution
@@ -21,31 +21,31 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.loader.plan.spi;
-
-import org.hibernate.LockMode;
-import org.hibernate.engine.FetchStyle;
-import org.hibernate.engine.FetchTiming;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.engine.FetchStrategy;
-import org.hibernate.persister.entity.EntityPersister;
+package org.hibernate.persister.walking.spi;
 
 /**
  * @author Steve Ebersole
  */
-public class CompositeFetch extends AbstractFetch implements Fetch {
-	public static final FetchStrategy FETCH_PLAN = new FetchStrategy( FetchTiming.IMMEDIATE, FetchStyle.JOIN );
+public interface AssociationVisitationStrategy {
+	/**
+	 * Notification we are preparing to start visitation.
+	 */
+	public void start();
 
-	public CompositeFetch(
-			SessionFactoryImplementor sessionFactory,
-			String alias,
-			AbstractFetchOwner owner,
-			String ownerProperty) {
-		super( sessionFactory, alias, LockMode.NONE, owner, ownerProperty, FETCH_PLAN );
-	}
+	/**
+	 * Notification we are finished visitation.
+	 */
+	public void finish();
 
-	@Override
-	public EntityPersister retrieveFetchSourcePersister() {
-		return getOwner().retrieveFetchSourcePersister();
-	}
+	public void startingEntity(EntityDefinition entityDefinition);
+	public void finishingEntity(EntityDefinition entityDefinition);
+
+	public void startingCollection(CollectionDefinition collectionDefinition);
+	public void finishingCollection(CollectionDefinition collectionDefinition);
+
+	public void startingComposite(CompositeDefinition compositeDefinition);
+	public void finishingComposite(CompositeDefinition compositeDefinition);
+
+	public boolean startingAttribute(AttributeDefinition attributeDefinition);
+	public void finishingAttribute(AttributeDefinition attributeDefinition);
 }

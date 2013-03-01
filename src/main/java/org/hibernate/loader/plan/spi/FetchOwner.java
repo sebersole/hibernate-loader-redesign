@@ -23,7 +23,7 @@
  */
 package org.hibernate.loader.plan.spi;
 
-import org.hibernate.loader.FetchPlan;
+import org.hibernate.engine.FetchStrategy;
 import org.hibernate.loader.PropertyPath;
 import org.hibernate.persister.entity.EntityPersister;
 
@@ -48,9 +48,9 @@ public interface FetchOwner {
 	/**
 	 * Is the asserted plan valid from this owner to a fetch?
 	 *
-	 * @param fetchPlan The pla to validate
+	 * @param fetchStrategy The pla to validate
 	 */
-	public void validateFetchPlan(FetchPlan fetchPlan);
+	public void validateFetchPlan(FetchStrategy fetchStrategy);
 
 	/**
 	 * Retrieve the EntityPersister that is the base for any property references in the fetches it owns.

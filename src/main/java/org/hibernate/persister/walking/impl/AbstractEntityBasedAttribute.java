@@ -21,31 +21,28 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.loader.plan.spi;
+package org.hibernate.persister.walking.impl;
 
-import org.hibernate.LockMode;
-import org.hibernate.engine.FetchStyle;
-import org.hibernate.engine.FetchTiming;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.engine.FetchStrategy;
-import org.hibernate.persister.entity.EntityPersister;
+import org.hibernate.persister.walking.spi.EntityDefinition;
+import org.hibernate.persister.walking.spi.EntityDefinition;
+import org.hibernate.type.Type;
 
 /**
  * @author Steve Ebersole
  */
-public class CompositeFetch extends AbstractFetch implements Fetch {
-	public static final FetchStrategy FETCH_PLAN = new FetchStrategy( FetchTiming.IMMEDIATE, FetchStyle.JOIN );
-
-	public CompositeFetch(
+public abstract class AbstractEntityBasedAttribute extends AbstractAttributeDefinition {
+	protected AbstractEntityBasedAttribute(
+			EntityDefinition source,
 			SessionFactoryImplementor sessionFactory,
-			String alias,
-			AbstractFetchOwner owner,
-			String ownerProperty) {
-		super( sessionFactory, alias, LockMode.NONE, owner, ownerProperty, FETCH_PLAN );
+			int attributeNumber,
+			String attributeName,
+			Type attributeType) {
+		super( source, sessionFactory, attributeNumber, attributeName, attributeType );
 	}
 
 	@Override
-	public EntityPersister retrieveFetchSourcePersister() {
-		return getOwner().retrieveFetchSourcePersister();
+	public EntityDefinition getSource() {
+		return (EntityDefinition) super.getSource();
 	}
 }

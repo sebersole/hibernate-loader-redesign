@@ -28,12 +28,12 @@ import java.util.ArrayDeque;
 import org.hibernate.HibernateException;
 import org.hibernate.engine.FetchTiming;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.loader.FetchPlan;
-import org.hibernate.loader.walking.spi.AssociationAttributeDefinition;
-import org.hibernate.loader.walking.spi.AttributeDefinition;
-import org.hibernate.loader.walking.spi.CollectionDefinition;
-import org.hibernate.loader.walking.spi.CompositeDefinition;
-import org.hibernate.loader.walking.spi.EntityDefinition;
+import org.hibernate.engine.FetchStrategy;
+import org.hibernate.persister.walking.spi.AssociationAttributeDefinition;
+import org.hibernate.persister.walking.spi.AttributeDefinition;
+import org.hibernate.persister.walking.spi.CollectionDefinition;
+import org.hibernate.persister.walking.spi.CompositeDefinition;
+import org.hibernate.persister.walking.spi.EntityDefinition;
 import org.hibernate.type.Type;
 
 /**
@@ -164,27 +164,27 @@ public abstract class AbstractLoadPlanBuilderStrategy implements LoadPlanBuilder
 	}
 
 	protected boolean handleAssociationAttribute(AssociationAttributeDefinition attributeDefinition) {
-		final FetchPlan fetchPlan = determineFetchPlan( attributeDefinition );
-		if ( fetchPlan.getTiming() != FetchTiming.IMMEDIATE ) {
+		final FetchStrategy fetchStrategy = determineFetchPlan( attributeDefinition );
+		if ( fetchStrategy.getTiming() != FetchTiming.IMMEDIATE ) {
 			return false;
 		}
 
 		final FetchOwner fetchOwner = fetchOwnerStack.peekLast();
-		fetchOwner.validateFetchPlan( fetchPlan );
+		fetchOwner.validateFetchPlan( fetchStrategy );
 
 		final Fetch associationFetch;
 		if ( attributeDefinition.isCollection() ) {
-			associationFetch = buildCollectionFetch( fetchOwner, attributeDefinition, fetchPlan );
+			associationFetch = buildCollectionFetch( fetchOwner, attributeDefinition, fetchStrategy );
 		}
 		else {
-			associationFetch = buildEntityFetch( fetchOwner, attributeDefinition, fetchPlan );
+			associationFetch = buildEntityFetch( fetchOwner, attributeDefinition, fetchStrategy );
 		}
 		fetchOwnerStack.addLast( associationFetch );
 
 		return true;
 	}
 
-	protected abstract FetchPlan determineFetchPlan(AssociationAttributeDefinition attributeDefinition);
+	protected abstract FetchStrategy determineFetchPlan(AssociationAttributeDefinition attributeDefinition);
 
 	protected int currentDepth() {
 		return fetchOwnerStack.size();
@@ -201,12 +201,12 @@ public abstract class AbstractLoadPlanBuilderStrategy implements LoadPlanBuilder
 	protected abstract CollectionFetch buildCollectionFetch(
 			FetchOwner fetchOwner,
 			AssociationAttributeDefinition attributeDefinition,
-			FetchPlan fetchPlan);
+			FetchStrategy fetchStrategy);
 
 	protected abstract EntityFetch buildEntityFetch(
 			FetchOwner fetchOwner,
 			AssociationAttributeDefinition attributeDefinition,
-			FetchPlan fetchPlan);
+			FetchStrategy fetchStrategy);
 
 	protected abstract CompositeFetch buildCompositeFetch(FetchOwner fetchOwner, CompositeDefinition attributeDefinition);
 }

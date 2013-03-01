@@ -28,8 +28,8 @@ import org.hibernate.engine.FetchTiming;
 import org.hibernate.engine.spi.CascadingAction;
 import org.hibernate.engine.spi.LoadQueryInfluencers;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.loader.FetchPlan;
-import org.hibernate.loader.walking.spi.AssociationAttributeDefinition;
+import org.hibernate.engine.FetchStrategy;
+import org.hibernate.persister.walking.spi.AssociationAttributeDefinition;
 
 /**
  * A LoadPlan building strategy for cascade processing; meaning, it builds the LoadPlan for loading related to
@@ -38,8 +38,8 @@ import org.hibernate.loader.walking.spi.AssociationAttributeDefinition;
  * @author Steve Ebersole
  */
 public class CascadeLoadPlanBuilderStrategy extends SingleRootReturnLoadPlanBuilderStrategy {
-	private static final FetchPlan EAGER = new FetchPlan( FetchTiming.IMMEDIATE, FetchStyle.JOIN );
-	private static final FetchPlan DELAYED = new FetchPlan( FetchTiming.DELAYED, FetchStyle.SELECT );
+	private static final FetchStrategy EAGER = new FetchStrategy( FetchTiming.IMMEDIATE, FetchStyle.JOIN );
+	private static final FetchStrategy DELAYED = new FetchStrategy( FetchTiming.DELAYED, FetchStyle.SELECT );
 
 	private final CascadingAction cascadeActionToMatch;
 
@@ -54,7 +54,7 @@ public class CascadeLoadPlanBuilderStrategy extends SingleRootReturnLoadPlanBuil
 	}
 
 	@Override
-	protected FetchPlan determineFetchPlan(AssociationAttributeDefinition attributeDefinition) {
+	protected FetchStrategy determineFetchPlan(AssociationAttributeDefinition attributeDefinition) {
 		return attributeDefinition.determineCascadeStyle().doCascade( cascadeActionToMatch ) ? EAGER : DELAYED;
 	}
 }
